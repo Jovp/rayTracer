@@ -24,12 +24,12 @@ public:
     : origin(_origin), direction(_direction){}
     
     void rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d);
-    Vec3f raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes);
+    Vec3f raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes,  Triangle & t);
     
     bool rayBBoxIntersection(const BBox& box,const float& t0,const float& t1);
     void raySceneIntersectionKdTree(const kdTree& tree);
     
-    float evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, Vec3f intersection);
+    Vec3f evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t,  Vec3f lightPos);
     
 };
 

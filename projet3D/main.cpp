@@ -243,16 +243,17 @@ void rayTrace () {
     Vec3f eye = polarToCartesian (camEyePolar);
     Vec3f a = eye*dot(Vec3f(0,1,0),eye);
     Vec3f up = normalize( (Vec3f(0,1,0) - a) );
-    Vec3f pCentre = eye + normalize(eye - camTarget);
+    Vec3f pCentre = eye + normalize(camTarget - eye);
     for (unsigned int i = 0; i < screenWidth; i++)
         for (unsigned int  j = 0; j < screenHeight; j++) {
             unsigned int index = 3*(i+j*screenWidth);
             rayImage[index] = rayImage[index+1] = rayImage[index+2] = rand ()%255;
-            Vec3f posPix = pCentre + (float)(i - screenWidth/2)*normalize(cross(up, (eye - camTarget))) + (float)(j - screenHeight/2)*up;
-            Vec3f direction = normalize(eye - posPix);
+            Vec3f posPix = pCentre + (float)(i - screenWidth/2)*normalize(cross(up, normalize(camTarget - eye))) + (float)(j - screenHeight/2)*up;
+            Vec3f direction = normalize(posPix - eye);
             Ray myRay = Ray(eye, direction);
-            Vec3f intersection = myRay.raySceneIntersection(shapes);
-            float f = myRay.evaluateResponse(shapes, intersection);
+            Triangle t;
+            Vec3f intersection = myRay.raySceneIntersection(shapes, t);
+            //float f = myRay.evaluateResponse(shapes, intersection, t);
             //rayImage[index] = rayImage[index+1] = rayImage[index+2] = f;
         }
 }

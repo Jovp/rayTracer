@@ -40,29 +40,38 @@ void Ray::rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f
     return;
 };
 
-Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes){
+Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t){
     float distMin = INFINITY;
     Vec3f intersection;
-    for (int i=0; i<shapes.size(); i++) {                           //Pour chaque shape
-        for (int j=0; j<shapes[i].mesh.indices.size()/9; j++) {     //Pour chaque triangle
+    for (size_t s = 0; s < shapes.size (); s++){
+        for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++) {
+            unsigned int index[3];
+            for (size_t v = 0; v  < 3; v++) {
+                index[v] = 3*shapes[s].mesh.indices[3*f+v];
+            }
             Vec3f p0, p1, p2;
-            p0[0] = shapes[i].mesh.positions[(j*9)];
-            p0[1] = shapes[i].mesh.positions[(j*9)+1];
-            p0[2] = shapes[i].mesh.positions[(j*9)+2];
+
+            p0[0] = shapes[s].mesh.positions[index[0]];
+            p0[1] = shapes[s].mesh.positions[index[0]+1];
+            p0[2] = shapes[s].mesh.positions[index[0]+2];
             
-            p1[0] = shapes[i].mesh.positions[(j*9)+3];
-            p1[1] = shapes[i].mesh.positions[(j*9)+4];
-            p1[2] = shapes[i].mesh.positions[(j*9)+5];
+            p1[0] = shapes[s].mesh.positions[index[1]+0];
+            p1[1] = shapes[s].mesh.positions[index[1]+1];
+            p1[2] = shapes[s].mesh.positions[index[1]+2];
             
-            p2[0] = shapes[i].mesh.positions[(j*9)+6];
-            p2[1] = shapes[i].mesh.positions[(j*9)+7];
-            p2[2] = shapes[i].mesh.positions[(j*9)+8];
+            p2[0] = shapes[s].mesh.positions[index[2]];
+            p2[1] = shapes[s].mesh.positions[index[2]+1];
+            p2[2] = shapes[s].mesh.positions[index[2]+2];
             Vec3f b;
             float d;
             rayTriangleIntersection(p0, p1, p2, b, d);
             if (dist(origin, b)<distMin) {
                 distMin = dist(origin, b);
                 intersection = b;
+                t.v[0] = index[0];
+                t.v[1] = index[1];
+                t.v[2] = index[2];
+                t.v[3] = s;
             }
         }
     }
@@ -152,10 +161,57 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree){
     
     
 }
-
-float evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, Vec3f intersection){
+float Brdf_Lambert(float Kd) {
+    return (Kd/M_PI);
+}
+float Brdf_GGX(const Vec3f & p, const Vec3f & n, Vec3f Light_toV, Vec3f cam_pos) {
+    // Paramètres :
     
-    return 0;//Brdf_Lambert(1);
+    const float alpha=1;
+    const float F0=0.3; //Plastique (diélectrique) : 0.3 à 0.5 Aluminium (conducteur) : [0.91, 0.92, 0.92], « reflet coloré », variance significative selon la longueur d’onde
+    
+    // A FAIRE  f_s = D.F.G
+    Vec3f Wo=normalize(Light_toV);
+    
+    Vec3f Wi=normalize(cam_pos - p);
+    
+    Vec3f Wh=normalize(Wi+Wo);
+    
+    // Distribution
+    float D=(alpha*alpha)/(M_PI*pow((1+(alpha*alpha-1)*pow(dot(n,Wh),2)),2));
+    
+    // Terme de fresnel
+    float Wih=dot(Wi, Wh);
+    float F=F0+(1-F0)*pow((1-(0.0>Wih ? 0.0 : Wih)),5); // Attention on a pas mis le max ! Sert-il a qqch ?
+    
+    // Terme Géométrique Cook-Torrance
+    
+    float Ombr=2*(dot(n,Wh)*dot(n,Wi))/(dot(Wo, Wh));
+    float Masq=2*(dot(n,Wh)*dot(n,Wo))/(dot(Wo, Wh));
+    float min1=(Masq<Ombr ? Masq : Ombr);
+    float G = 1<min1 ? 1 :min1;
+    
+    return D*F*G/(4*dot(n,Wi)*dot(n,Wo));
+}
+
+
+Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t, Vec3f lightPos){
+    Vec3f p, n;
+    float L[3];
+    for (int i=0; i<3; i++) {
+        p[0] = shapes[t.v[3]].mesh.positions[t.v[i]];
+        p[1] = shapes[t.v[3]].mesh.positions[t.v[i]+1];
+        p[2] = shapes[t.v[3]].mesh.positions[t.v[i]+2];
+        
+        n[0] = shapes[t.v[3]].mesh.normals[t.v[i]];
+        n[1] = shapes[t.v[3]].mesh.normals[t.v[i]+1];
+        n[2] = shapes[t.v[3]].mesh.normals[t.v[i]+2];
+        
+        L[i] = Brdf_GGX(p, n, normalize(p-lightPos), origin);
+    }
+    
+    int index = shapes[t.v[3]].mesh.material_ids[t.v[0]];
+    return Vec3f(materials[index].diffuse[0],materials[index].diffuse[1],materials[index].diffuse[2]);
 };
 
 
