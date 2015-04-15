@@ -35,5 +35,37 @@
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projet3D/Ray.cpp"
+            timestampString = "450820482.730211"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "160"
+            endingLineNumber = "160"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projet3D/Ray.cpp"
+            timestampString = "450820695.101767"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "164"
+            endingLineNumber = "164"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

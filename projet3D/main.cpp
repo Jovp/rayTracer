@@ -251,16 +251,24 @@ void displayRayImage () {
 // MAIN FUNCTION TO CHANGE !
 void rayTrace () {
     Vec3f eye = polarToCartesian (camEyePolar);
-    Vec3f a = eye*dot(Vec3f(1,0,0),eye);
-    Vec3f up = normalize( cross(Vec3f(0,1,0),normalize(camTarget - eye)) );
-    Vec3f pCentre = eye + normalize(camTarget - eye)/10;
+    Vec3f pCentre = eye + normalize(camTarget - eye);
+    
+    float fovx=fovAngle*(2*M_PI/360);
+    float fovy=(fovx*screenHeight)/screenWidth;
+    // on prend un plan image ˆ une distance 1
+    Vec3f up = normalize( Vec3f(0,0,1)-dot(normalize(camTarget - eye),Vec3f(0,0,1))*normalize(camTarget - eye) );
     std::cout << "direction regard : " << normalize(camTarget - eye) << std::endl;
-    for (unsigned int i = 0; i < screenWidth; i++)
-        for (unsigned int  j = 0; j < screenHeight; j++) {
-            unsigned int index = 3*(i+j*screenWidth);
+    std::cout << "taille up : " << up.length() << std::endl;
+    std::cout << "position oeil : " << eye << std::endl;
+    for (unsigned int i = 0; i < screenHeight; i++){
+        for (unsigned int  j = 0; j < screenWidth; j++) {
+            unsigned int index = 3*(j+i*screenWidth);
             rayImage[index] = rayImage[index+1] = rayImage[index+2] = 0;
-            Vec3f posPix = pCentre + (float)(i - screenWidth/2)*(normalize(cross(up, normalize(camTarget - eye)))/10000) + (float)(j - screenHeight/2)*(up/10000);
+            float x = (2*j-screenWidth)*tan(fovx)/screenWidth;
+            float y = (2*i-screenHeight)*tan(fovy)/screenHeight;
+            Vec3f posPix = pCentre + x*normalize(cross(up, normalize(camTarget - eye))) + y*up;
             Vec3f direction = normalize(posPix - eye);
+            std::cout << direction << std::endl;
             Ray myRay = Ray(eye, direction);
             //Vec3f intersection = myRay.raySceneIntersection(shapes, t);
             Triangle tri;
@@ -276,7 +284,7 @@ void rayTrace () {
                 rayImage[index+2] = f[2];
             }
             
-        }
+        }}
 }
 
 void display () {  
