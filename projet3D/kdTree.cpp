@@ -105,6 +105,8 @@ float findMedianFloat(const std::vector<float>& liste){
     }
 }
 
+// test hub
+
 Vec3f findMedianSample(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Triangle>& TriangleList){
     
     std::vector<float> xCentre;

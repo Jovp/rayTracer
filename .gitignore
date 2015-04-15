@@ -1,0 +1,14 @@
+
+*.xcuserstate
+
+*.o
+
+*.dia
+
+build/projet3D.build/Debug/projet3D.build/dgph
+
+*.dat
+
+*.xcuserstate
+
+build/Debug/projet3D
