@@ -11,7 +11,11 @@
 
 #include <stdio.h>
 #include "Vec3.h"
+<<<<<<< HEAD
 #include "tiny_obj_loader.h"
+=======
+#include "BBox.h"
+>>>>>>> Julien
 
 class Ray {
 public:
