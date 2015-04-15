@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B2FE62DF1ADE530200F9DC55 /* kdTree.d in Sources */ = {isa = PBXBuildFile; fileRef = B2FE62C31ADE530200F9DC55 /* kdTree.d */; };
+		B2FE62E01ADE530200F9DC55 /* kdTree.o in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FE62C51ADE530200F9DC55 /* kdTree.o */; };
+		B2FE62E11ADE530200F9DC55 /* main.d in Sources */ = {isa = PBXBuildFile; fileRef = B2FE62C61ADE530200F9DC55 /* main.d */; };
+		B2FE62E21ADE530200F9DC55 /* main.o in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FE62C81ADE530200F9DC55 /* main.o */; };
+		B2FE62E31ADE530200F9DC55 /* tiny_obj_loader.d in Sources */ = {isa = PBXBuildFile; fileRef = B2FE62CB1ADE530200F9DC55 /* tiny_obj_loader.d */; };
+		B2FE62E41ADE530200F9DC55 /* tiny_obj_loader.o in Frameworks */ = {isa = PBXBuildFile; fileRef = B2FE62CD1ADE530200F9DC55 /* tiny_obj_loader.o */; };
+		B2FE62E51ADE530200F9DC55 /* kdTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2FE62D91ADE530200F9DC55 /* kdTree.cpp */; };
+		B2FE62E61ADE530200F9DC55 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2FE62DB1ADE530200F9DC55 /* main.cpp */; };
+		B2FE62E71ADE530200F9DC55 /* tiny_obj_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B2FE62DC1ADE530200F9DC55 /* tiny_obj_loader.cpp */; };
 		F921EDDA1ADD67A000D9C835 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F921EDD91ADD67A000D9C835 /* main.cpp */; };
 		F921EDE31ADD67E100D9C835 /* tiny_obj_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F921EDE21ADD67E100D9C835 /* tiny_obj_loader.cpp */; };
 		F921EDE51ADD67FB00D9C835 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F921EDE41ADD67FB00D9C835 /* GLUT.framework */; };
@@ -27,6 +36,31 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B2FE62C31ADE530200F9DC55 /* kdTree.d */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.dtrace; path = kdTree.d; sourceTree = "<group>"; };
+		B2FE62C41ADE530200F9DC55 /* kdTree.dia */ = {isa = PBXFileReference; lastKnownFileType = file; path = kdTree.dia; sourceTree = "<group>"; };
+		B2FE62C51ADE530200F9DC55 /* kdTree.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = kdTree.o; sourceTree = "<group>"; };
+		B2FE62C61ADE530200F9DC55 /* main.d */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.dtrace; path = main.d; sourceTree = "<group>"; };
+		B2FE62C71ADE530200F9DC55 /* main.dia */ = {isa = PBXFileReference; lastKnownFileType = file; path = main.dia; sourceTree = "<group>"; };
+		B2FE62C81ADE530200F9DC55 /* main.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = main.o; sourceTree = "<group>"; };
+		B2FE62C91ADE530200F9DC55 /* projet3D.LinkFileList */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = projet3D.LinkFileList; sourceTree = "<group>"; };
+		B2FE62CA1ADE530200F9DC55 /* projet3D_dependency_info.dat */ = {isa = PBXFileReference; lastKnownFileType = file; path = projet3D_dependency_info.dat; sourceTree = "<group>"; };
+		B2FE62CB1ADE530200F9DC55 /* tiny_obj_loader.d */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.dtrace; path = tiny_obj_loader.d; sourceTree = "<group>"; };
+		B2FE62CC1ADE530200F9DC55 /* tiny_obj_loader.dia */ = {isa = PBXFileReference; lastKnownFileType = file; path = tiny_obj_loader.dia; sourceTree = "<group>"; };
+		B2FE62CD1ADE530200F9DC55 /* tiny_obj_loader.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = tiny_obj_loader.o; sourceTree = "<group>"; };
+		B2FE62CE1ADE530200F9DC55 /* projet3D-all-non-framework-target-headers.hmap */ = {isa = PBXFileReference; lastKnownFileType = file; path = "projet3D-all-non-framework-target-headers.hmap"; sourceTree = "<group>"; };
+		B2FE62CF1ADE530200F9DC55 /* projet3D-all-target-headers.hmap */ = {isa = PBXFileReference; lastKnownFileType = file; path = "projet3D-all-target-headers.hmap"; sourceTree = "<group>"; };
+		B2FE62D01ADE530200F9DC55 /* projet3D-generated-files.hmap */ = {isa = PBXFileReference; lastKnownFileType = file; path = "projet3D-generated-files.hmap"; sourceTree = "<group>"; };
+		B2FE62D11ADE530200F9DC55 /* projet3D-own-target-headers.hmap */ = {isa = PBXFileReference; lastKnownFileType = file; path = "projet3D-own-target-headers.hmap"; sourceTree = "<group>"; };
+		B2FE62D21ADE530200F9DC55 /* projet3D-project-headers.hmap */ = {isa = PBXFileReference; lastKnownFileType = file; path = "projet3D-project-headers.hmap"; sourceTree = "<group>"; };
+		B2FE62D31ADE530200F9DC55 /* projet3D.hmap */ = {isa = PBXFileReference; lastKnownFileType = file; path = projet3D.hmap; sourceTree = "<group>"; };
+		B2FE62D61ADE530200F9DC55 /* dgph */ = {isa = PBXFileReference; lastKnownFileType = file; path = dgph; sourceTree = "<group>"; };
+		B2FE62D81ADE530200F9DC55 /* BBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BBox.h; sourceTree = "<group>"; };
+		B2FE62D91ADE530200F9DC55 /* kdTree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kdTree.cpp; sourceTree = "<group>"; };
+		B2FE62DA1ADE530200F9DC55 /* kdTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kdTree.h; sourceTree = "<group>"; };
+		B2FE62DB1ADE530200F9DC55 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		B2FE62DC1ADE530200F9DC55 /* tiny_obj_loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_obj_loader.cpp; sourceTree = "<group>"; };
+		B2FE62DD1ADE530200F9DC55 /* tiny_obj_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_obj_loader.h; sourceTree = "<group>"; };
+		B2FE62DE1ADE530200F9DC55 /* Vec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec3.h; sourceTree = "<group>"; };
 		F921EDD61ADD67A000D9C835 /* projet3D */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = projet3D; sourceTree = BUILT_PRODUCTS_DIR; };
 		F921EDD91ADD67A000D9C835 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		F921EDE01ADD67E100D9C835 /* Vec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec3.h; sourceTree = "<group>"; };
@@ -44,17 +78,117 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2FE62E21ADE530200F9DC55 /* main.o in Frameworks */,
+				B2FE62E41ADE530200F9DC55 /* tiny_obj_loader.o in Frameworks */,
 				F921EDE71ADD680400D9C835 /* OpenGL.framework in Frameworks */,
 				F921EDE51ADD67FB00D9C835 /* GLUT.framework in Frameworks */,
+				B2FE62E01ADE530200F9DC55 /* kdTree.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B2FE62BD1ADE530200F9DC55 /* build */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62BE1ADE530200F9DC55 /* projet3D.build */,
+			);
+			path = build;
+			sourceTree = "<group>";
+		};
+		B2FE62BE1ADE530200F9DC55 /* projet3D.build */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62BF1ADE530200F9DC55 /* Debug */,
+				B2FE62D41ADE530200F9DC55 /* Release */,
+			);
+			path = projet3D.build;
+			sourceTree = "<group>";
+		};
+		B2FE62BF1ADE530200F9DC55 /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62C01ADE530200F9DC55 /* projet3D.build */,
+			);
+			path = Debug;
+			sourceTree = "<group>";
+		};
+		B2FE62C01ADE530200F9DC55 /* projet3D.build */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62C11ADE530200F9DC55 /* Objects-normal */,
+				B2FE62CE1ADE530200F9DC55 /* projet3D-all-non-framework-target-headers.hmap */,
+				B2FE62CF1ADE530200F9DC55 /* projet3D-all-target-headers.hmap */,
+				B2FE62D01ADE530200F9DC55 /* projet3D-generated-files.hmap */,
+				B2FE62D11ADE530200F9DC55 /* projet3D-own-target-headers.hmap */,
+				B2FE62D21ADE530200F9DC55 /* projet3D-project-headers.hmap */,
+				B2FE62D31ADE530200F9DC55 /* projet3D.hmap */,
+			);
+			path = projet3D.build;
+			sourceTree = "<group>";
+		};
+		B2FE62C11ADE530200F9DC55 /* Objects-normal */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62C21ADE530200F9DC55 /* x86_64 */,
+			);
+			path = "Objects-normal";
+			sourceTree = "<group>";
+		};
+		B2FE62C21ADE530200F9DC55 /* x86_64 */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62C31ADE530200F9DC55 /* kdTree.d */,
+				B2FE62C41ADE530200F9DC55 /* kdTree.dia */,
+				B2FE62C51ADE530200F9DC55 /* kdTree.o */,
+				B2FE62C61ADE530200F9DC55 /* main.d */,
+				B2FE62C71ADE530200F9DC55 /* main.dia */,
+				B2FE62C81ADE530200F9DC55 /* main.o */,
+				B2FE62C91ADE530200F9DC55 /* projet3D.LinkFileList */,
+				B2FE62CA1ADE530200F9DC55 /* projet3D_dependency_info.dat */,
+				B2FE62CB1ADE530200F9DC55 /* tiny_obj_loader.d */,
+				B2FE62CC1ADE530200F9DC55 /* tiny_obj_loader.dia */,
+				B2FE62CD1ADE530200F9DC55 /* tiny_obj_loader.o */,
+			);
+			path = x86_64;
+			sourceTree = "<group>";
+		};
+		B2FE62D41ADE530200F9DC55 /* Release */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62D51ADE530200F9DC55 /* projet3D.build */,
+			);
+			path = Release;
+			sourceTree = "<group>";
+		};
+		B2FE62D51ADE530200F9DC55 /* projet3D.build */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62D61ADE530200F9DC55 /* dgph */,
+			);
+			path = projet3D.build;
+			sourceTree = "<group>";
+		};
+		B2FE62D71ADE530200F9DC55 /* projet3D */ = {
+			isa = PBXGroup;
+			children = (
+				B2FE62D81ADE530200F9DC55 /* BBox.h */,
+				B2FE62D91ADE530200F9DC55 /* kdTree.cpp */,
+				B2FE62DA1ADE530200F9DC55 /* kdTree.h */,
+				B2FE62DB1ADE530200F9DC55 /* main.cpp */,
+				B2FE62DC1ADE530200F9DC55 /* tiny_obj_loader.cpp */,
+				B2FE62DD1ADE530200F9DC55 /* tiny_obj_loader.h */,
+				B2FE62DE1ADE530200F9DC55 /* Vec3.h */,
+			);
+			path = projet3D;
+			sourceTree = "<group>";
+		};
 		F921EDCD1ADD67A000D9C835 = {
 			isa = PBXGroup;
 			children = (
+				B2FE62BD1ADE530200F9DC55 /* build */,
+				B2FE62D71ADE530200F9DC55 /* projet3D */,
 				F921EDE61ADD680400D9C835 /* OpenGL.framework */,
 				F921EDE41ADD67FB00D9C835 /* GLUT.framework */,
 				F921EDD81ADD67A000D9C835 /* projet3D */,
@@ -140,8 +274,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B2FE62E11ADE530200F9DC55 /* main.d in Sources */,
+				B2FE62E31ADE530200F9DC55 /* tiny_obj_loader.d in Sources */,
+				B2FE62E51ADE530200F9DC55 /* kdTree.cpp in Sources */,
 				F921EDE31ADD67E100D9C835 /* tiny_obj_loader.cpp in Sources */,
+				B2FE62DF1ADE530200F9DC55 /* kdTree.d in Sources */,
 				F921EDDA1ADD67A000D9C835 /* main.cpp in Sources */,
+				B2FE62E61ADE530200F9DC55 /* main.cpp in Sources */,
+				B2FE62E71ADE530200F9DC55 /* tiny_obj_loader.cpp in Sources */,
 				F921EDEA1ADD693C00D9C835 /* kdTree.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -256,6 +396,7 @@
 				F921EDDF1ADD67A000D9C835 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

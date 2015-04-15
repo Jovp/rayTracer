@@ -69,7 +69,8 @@ void printUsage () {
 			<< " <drag>+<left button>: rotate model" << std::endl 
 			<< " <drag>+<right button>: move model" << std::endl
 			<< " <drag>+<middle button>: zoom" << std::endl
-			<< " q, <esc>: Quit" << std::endl << std::endl; 
+			<< " q, <esc>: Quit" << std::endl << std::endl
+            << "coucou" <<std::endl << std::endl;
 }
 
 void initOpenGL () {
