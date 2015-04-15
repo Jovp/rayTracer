@@ -1,0 +1,263 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		F921EDDA1ADD67A000D9C835 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F921EDD91ADD67A000D9C835 /* main.cpp */; };
+		F921EDE31ADD67E100D9C835 /* tiny_obj_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F921EDE21ADD67E100D9C835 /* tiny_obj_loader.cpp */; };
+		F921EDE51ADD67FB00D9C835 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F921EDE41ADD67FB00D9C835 /* GLUT.framework */; };
+		F921EDE71ADD680400D9C835 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F921EDE61ADD680400D9C835 /* OpenGL.framework */; };
+		F921EDEA1ADD693C00D9C835 /* kdTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F921EDE81ADD693C00D9C835 /* kdTree.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F921EDD41ADD67A000D9C835 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		F921EDD61ADD67A000D9C835 /* projet3D */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = projet3D; sourceTree = BUILT_PRODUCTS_DIR; };
+		F921EDD91ADD67A000D9C835 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		F921EDE01ADD67E100D9C835 /* Vec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec3.h; sourceTree = "<group>"; };
+		F921EDE11ADD67E100D9C835 /* tiny_obj_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_obj_loader.h; sourceTree = "<group>"; };
+		F921EDE21ADD67E100D9C835 /* tiny_obj_loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tiny_obj_loader.cpp; sourceTree = "<group>"; };
+		F921EDE41ADD67FB00D9C835 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
+		F921EDE61ADD680400D9C835 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		F921EDE81ADD693C00D9C835 /* kdTree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kdTree.cpp; sourceTree = "<group>"; };
+		F921EDE91ADD693C00D9C835 /* kdTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kdTree.h; sourceTree = "<group>"; };
+		F921EDEB1ADD6E5B00D9C835 /* BBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BBox.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		F921EDD31ADD67A000D9C835 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F921EDE71ADD680400D9C835 /* OpenGL.framework in Frameworks */,
+				F921EDE51ADD67FB00D9C835 /* GLUT.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		F921EDCD1ADD67A000D9C835 = {
+			isa = PBXGroup;
+			children = (
+				F921EDE61ADD680400D9C835 /* OpenGL.framework */,
+				F921EDE41ADD67FB00D9C835 /* GLUT.framework */,
+				F921EDD81ADD67A000D9C835 /* projet3D */,
+				F921EDD71ADD67A000D9C835 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F921EDD71ADD67A000D9C835 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F921EDD61ADD67A000D9C835 /* projet3D */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F921EDD81ADD67A000D9C835 /* projet3D */ = {
+			isa = PBXGroup;
+			children = (
+				F921EDE01ADD67E100D9C835 /* Vec3.h */,
+				F921EDE11ADD67E100D9C835 /* tiny_obj_loader.h */,
+				F921EDE21ADD67E100D9C835 /* tiny_obj_loader.cpp */,
+				F921EDD91ADD67A000D9C835 /* main.cpp */,
+				F921EDE81ADD693C00D9C835 /* kdTree.cpp */,
+				F921EDE91ADD693C00D9C835 /* kdTree.h */,
+				F921EDEB1ADD6E5B00D9C835 /* BBox.h */,
+			);
+			path = projet3D;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		F921EDD51ADD67A000D9C835 /* projet3D */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F921EDDD1ADD67A000D9C835 /* Build configuration list for PBXNativeTarget "projet3D" */;
+			buildPhases = (
+				F921EDD21ADD67A000D9C835 /* Sources */,
+				F921EDD31ADD67A000D9C835 /* Frameworks */,
+				F921EDD41ADD67A000D9C835 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = projet3D;
+			productName = projet3D;
+			productReference = F921EDD61ADD67A000D9C835 /* projet3D */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		F921EDCE1ADD67A000D9C835 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0620;
+				ORGANIZATIONNAME = "Julien Philip";
+				TargetAttributes = {
+					F921EDD51ADD67A000D9C835 = {
+						CreatedOnToolsVersion = 6.2;
+					};
+				};
+			};
+			buildConfigurationList = F921EDD11ADD67A000D9C835 /* Build configuration list for PBXProject "projet3D" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = F921EDCD1ADD67A000D9C835;
+			productRefGroup = F921EDD71ADD67A000D9C835 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F921EDD51ADD67A000D9C835 /* projet3D */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		F921EDD21ADD67A000D9C835 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F921EDE31ADD67E100D9C835 /* tiny_obj_loader.cpp in Sources */,
+				F921EDDA1ADD67A000D9C835 /* main.cpp in Sources */,
+				F921EDEA1ADD693C00D9C835 /* kdTree.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		F921EDDB1ADD67A000D9C835 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		F921EDDC1ADD67A000D9C835 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		F921EDDE1ADD67A000D9C835 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F921EDDF1ADD67A000D9C835 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F921EDD11ADD67A000D9C835 /* Build configuration list for PBXProject "projet3D" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F921EDDB1ADD67A000D9C835 /* Debug */,
+				F921EDDC1ADD67A000D9C835 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F921EDDD1ADD67A000D9C835 /* Build configuration list for PBXNativeTarget "projet3D" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F921EDDE1ADD67A000D9C835 /* Debug */,
+				F921EDDF1ADD67A000D9C835 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = F921EDCE1ADD67A000D9C835 /* Project object */;
+}
