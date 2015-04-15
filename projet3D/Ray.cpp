@@ -111,7 +111,7 @@ bool Ray::rayBBoxIntersection(const BBox& box,const float& t0,const float& t1){
     
 }
 
-void Ray::raySceneIntersectionKdTree(const kdTree& tree){
+void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyobj::shape_t> & shapes,Triangle& triIntersect,Vec3f& b, float& t){
     /*
      if (!node.getFeuilleT().empty())
      {
@@ -138,14 +138,32 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree){
      */
     if (!tree.feuilleT.empty()) {
         int l=0;
-        while (1==1) {
-            
+        while (l<tree.feuilleT.size()) {
+            Triangle tri =tree.feuilleT[l];
+            Vec3f bTemp;
+            float tTemp=INFINITY;
+            // origin, direction, coord triangle , coordonnée barycentrique, distance caméra !
+            IntersectionRayonTriangle(origin, direction,
+                                      Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[0]],shapes[tri.v[3]].mesh.positions[tri.v[0]+1],shapes[tri.v[3]].mesh.positions[tri.v[0]+2]),
+                                      Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[1]],shapes[tri.v[3]].mesh.positions[tri.v[1]+1],shapes[tri.v[3]].mesh.positions[tri.v[1]+2]),
+                                      Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[2]],shapes[tri.v[3]].mesh.positions[tri.v[2]+1],shapes[tri.v[3]].mesh.positions[tri.v[2]+2]),
+                                      bTemp, tTemp);
+            if (tTemp<t){
+                t=tTemp;
+                b=bTemp;
+                triIntersect=tri;
+            }
         }
     }
     
     else if (!this->rayBBoxIntersection(tree.boite,0,MAXFLOAT)) {
-        
+        t=-1;
     }
+    else {
+        this->raySceneIntersectionKdTree(*tree.leftChild, shapes, triIntersect, b, t);
+        this->raySceneIntersectionKdTree(*tree.rightChild, shapes, triIntersect, b, t);
+    }
+    
     
     
 }

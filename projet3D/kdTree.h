@@ -49,13 +49,14 @@ class kdTree{
     kdTree(const std::vector<tinyobj::shape_t>& shapes);
     std::vector<Triangle> feuilleT;
     BBox boite;
+    kdTree * leftChild;
+    kdTree * rightChild ;
     
     private :
     Vec3f mediane;
     
     int axis;
-    kdTree * leftChild;
-    kdTree * rightChild ;
+    
     
 };
 

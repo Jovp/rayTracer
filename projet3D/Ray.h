@@ -14,6 +14,7 @@
 #include "tiny_obj_loader.h"
 #include "BBox.h"
 #include "kdTree.h"
+#include <float.h>
 
 class Ray {
 public:
@@ -26,7 +27,7 @@ public:
     Vec3f rayTriangleIntersection (Vec3f o, Vec3f w,float p0,float p1,float p2);
     Vec3f raySceneIntersection();
     bool rayBBoxIntersection(const BBox& box,const float& t0,const float& t1);
-    void raySceneIntersectionKdTree(const kdTree& tree);
+    void raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyobj::shape_t> & shapes,Triangle& triIntersect,Vec3f& b, float& t);
     float evaluateResponse(Vec3f intersection);
     
 };
