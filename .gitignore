@@ -16,3 +16,7 @@ build/Debug/projet3D
 *.dia
 
 *.xcuserstate
+
+*.o
+
+*.xcuserstate

@@ -236,6 +236,7 @@ kdTree::kdTree(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Tri
         }
         
         
+        
     }
     
 }
