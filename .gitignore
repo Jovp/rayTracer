@@ -22,3 +22,5 @@ build/Debug/projet3D
 *.xcuserstate
 
 *.plist
+
+build/Debug/

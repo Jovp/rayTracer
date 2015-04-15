@@ -22,17 +22,17 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "projet3D/main.cpp"
-            timestampString = "450730438.803009"
+            filePath = "projet3D/kdTree.cpp"
+            timestampString = "450808685.522565"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "175"
-            endingLineNumber = "175"
-            landmarkName = "init (const string &amp; filename)"
-            landmarkType = "7">
+            startingLineNumber = "219"
+            endingLineNumber = "219"
+            landmarkName = "kdTree::kdTree(const std::vector&lt;tinyobj::shape_t&gt;&amp; shapes,const std::vector&lt;Triangle&gt;&amp; TriangleList)"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
