@@ -12,3 +12,7 @@ build/projet3D.build/Debug/projet3D.build/dgph
 *.xcuserstate
 
 build/Debug/projet3D
+
+*.dia
+
+*.xcuserstate
