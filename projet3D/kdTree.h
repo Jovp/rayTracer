@@ -47,14 +47,16 @@ class kdTree{
     
     kdTree(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Triangle>& TriangleList);
     kdTree(const std::vector<tinyobj::shape_t>& shapes);
+    std::vector<Triangle> feuilleT;
+    BBox boite;
     
     private :
     Vec3f mediane;
-    BBox boite;
+    
     int axis;
     kdTree * leftChild;
     kdTree * rightChild ;
-    std::vector<Triangle> feuilleT;
+    
 };
 
 std::vector<Triangle> TriangleListFromShapes(const std::vector<tinyobj::shape_t>& shapes);
