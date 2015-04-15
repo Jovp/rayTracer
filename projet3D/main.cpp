@@ -18,6 +18,7 @@
 #include "tiny_obj_loader.h"
 #include "kdTree.h"
 #include "Ray.h"
+#include "Shadow.h"
 
 using namespace std;
 
@@ -252,8 +253,13 @@ void rayTrace () {
             Vec3f direction = normalize(eye - posPix);
             Ray myRay = Ray(eye, direction);
             Vec3f intersection = myRay.raySceneIntersection(shapes);
-            float f = myRay.evaluateResponse(shapes, intersection);
+            Shadow shadow = Shadow(intersection, lightPos, shapes);
+            if (shadow.isInShadow()){
+                //do nothing, the intersection is not lit
+            } else {
+            //float f = myRay.evaluateResponse(shapes, intersection);
             //rayImage[index] = rayImage[index+1] = rayImage[index+2] = f;
+            }
         }
 }
 

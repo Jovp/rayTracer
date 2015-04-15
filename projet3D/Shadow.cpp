@@ -16,6 +16,7 @@ bool Shadow::isInShadow(){
     Vec3f b;
     Vec3f p0, p1, p2;
     float d;
+    float epsilon;
 
     //boucle sur tous les triangles de la scene
     for (int i=0; i<T.size(); i++){
@@ -25,7 +26,7 @@ bool Shadow::isInShadow(){
         
         rayon.rayTriangleIntersection(p0,p1,p2,b,d);
         
-        if (d>0) {
+        if (d>epsilon) {
             return true;
         } else {
             d=-1.0;
