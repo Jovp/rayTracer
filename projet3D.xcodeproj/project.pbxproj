@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		ACBD6BF61ADE645A00200960 /* Ray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ACBD6BF41ADE645A00200960 /* Ray.cpp */; };
 		F921EDDA1ADD67A000D9C835 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F921EDD91ADD67A000D9C835 /* main.cpp */; };
 		F921EDE31ADD67E100D9C835 /* tiny_obj_loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F921EDE21ADD67E100D9C835 /* tiny_obj_loader.cpp */; };
 		F921EDE51ADD67FB00D9C835 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F921EDE41ADD67FB00D9C835 /* GLUT.framework */; };
@@ -27,6 +28,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		ACBD6BF41ADE645A00200960 /* Ray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Ray.cpp; sourceTree = "<group>"; };
+		ACBD6BF51ADE645A00200960 /* Ray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ray.h; sourceTree = "<group>"; };
 		F921EDD61ADD67A000D9C835 /* projet3D */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = projet3D; sourceTree = BUILT_PRODUCTS_DIR; };
 		F921EDD91ADD67A000D9C835 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		F921EDE01ADD67E100D9C835 /* Vec3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vec3.h; sourceTree = "<group>"; };
@@ -73,6 +76,8 @@
 		F921EDD81ADD67A000D9C835 /* projet3D */ = {
 			isa = PBXGroup;
 			children = (
+				ACBD6BF41ADE645A00200960 /* Ray.cpp */,
+				ACBD6BF51ADE645A00200960 /* Ray.h */,
 				F921EDE01ADD67E100D9C835 /* Vec3.h */,
 				F921EDE11ADD67E100D9C835 /* tiny_obj_loader.h */,
 				F921EDE21ADD67E100D9C835 /* tiny_obj_loader.cpp */,
@@ -140,6 +145,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ACBD6BF61ADE645A00200960 /* Ray.cpp in Sources */,
 				F921EDE31ADD67E100D9C835 /* tiny_obj_loader.cpp in Sources */,
 				F921EDDA1ADD67A000D9C835 /* main.cpp in Sources */,
 				F921EDEA1ADD693C00D9C835 /* kdTree.cpp in Sources */,
@@ -256,6 +262,7 @@
 				F921EDDF1ADD67A000D9C835 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
