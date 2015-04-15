@@ -22,3 +22,25 @@ build/Debug/projet3D
 *.xcuserstate
 
 *.plist
+
+*.d
+
+*.d
+
+*.dia
+
+*.o
+
+*.LinkFileList
+
+*.xcscheme
+
+*.xcbkptlist
+
+*.xccheckout
+
+*.pbxproj
+
+*.hmap
+
+*.hmap
