@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Vec3.h"
+#include "tiny_obj_loader.h"
 
 class Ray {
 public:
@@ -20,8 +21,8 @@ public:
     Ray(Vec3f _origin, Vec3f _direction)
         : origin(_origin), direction(_direction){}
     
-    Vec3f rayTriangleIntersection (Vec3f o, Vec3f w,float p0,float p1,float p2);
-    Vec3f raySceneIntersection();
+    void IntersectionRayonTriangle (const Vec3f & o,const Vec3f & w,const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d);
+    Vec3f raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, const Vec3f & o,const Vec3f & w);
     float evaluateResponse(Vec3f intersection);
     
 };
