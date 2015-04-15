@@ -10,34 +10,37 @@
 
 
 
-void IntersectionRayonTriangle (const Vec3f & o,const Vec3f & w,const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d){
+void Ray::rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d){
     
     Vec3f e0 = p1-p0;
     Vec3f e1 = p2-p0;
     Vec3f n = normalize(cross(e0,e1));
-    Vec3f q = cross(w,e1);
+    Vec3f q = cross(direction,e1);
     float a = dot(e0,q);
-    if( dot(n,w) >= 0 || std::abs(a) < 0.0000001 ){
+    if( dot(n,direction) >= 0 || std::abs(a) < 0.0000001 ){
         //return nullptr;
+        return;
     }
-    Vec3f s = (o - p0)/a;
+    Vec3f s = (origin - p0)/a;
     Vec3f r = cross(s,e0);
     float b0 = dot(s,q);
-    float b1 = dot(r,w);
+    float b1 = dot(r,direction);
     float b2 = 1 - b0 - b1;
     if( b0 < 0 || b1 < 0 || b2 < 0){
         //return nullptr;
+        return;
     }
     float t = dot(e1,r);
-    if(t>=0){
+    if( t >= 0.0 ){
         //return  Vec3f(b0,b1,b2);
         b = Vec3f(b0, b1, b2);
         d = t;
     }
     // return nullptr;
+    return;
 };
 
-Vec3f raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, const Vec3f & o,const Vec3f & w){
+Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes){
     float distMin = INFINITY;
     Vec3f intersection;
     for (int i=0; i<shapes.size(); i++) {                           //Pour chaque shape
@@ -56,9 +59,9 @@ Vec3f raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, const V
             p2[2] = shapes[i].mesh.positions[(j*9)+8];
             Vec3f b;
             float d;
-            IntersectionRayonTriangle (o, w, p0, p1, p2, b, d);
-            if (dist(o, b)<distMin) {
-                distMin = dist(o, b);
+            rayTriangleIntersection(p0, p1, p2, b, d);
+            if (dist(origin, b)<distMin) {
+                distMin = dist(origin, b);
                 intersection = b;
             }
         }
@@ -150,8 +153,9 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree){
     
 }
 
-float evaluateResponse(Vec3f intersection){
-    return 0;
+float evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, Vec3f intersection){
+    
+    return 0;//Brdf_Lambert(1);
 };
 
 

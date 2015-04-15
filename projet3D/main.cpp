@@ -17,6 +17,7 @@
 #include "Vec3.h"
 #include "tiny_obj_loader.h"
 #include "kdTree.h"
+#include "Ray.h"
 
 using namespace std;
 
@@ -170,7 +171,7 @@ void initLighting () {
 
 void init (const string & filename) {  
   initOpenGL ();
-  unsigned int i = filename.find_last_of ("/");
+  unsigned int i = (unsigned int) filename.find_last_of ("/");
   loadScene (filename, filename.substr (0, i+1));
   kdTree toto=kdTree(shapes);
   initCamera ();
@@ -239,11 +240,21 @@ void displayRayImage () {
 
 // MAIN FUNCTION TO CHANGE !
 void rayTrace () {
-  for (unsigned int i = 0; i < screenWidth; i++)
-	for (unsigned int  j = 0; j < screenHeight; j++) {
-	  unsigned int index = 3*(i+j*screenWidth);
-	  rayImage[index] = rayImage[index+1] = rayImage[index+2] = rand ()%255;
-	}
+    Vec3f eye = polarToCartesian (camEyePolar);
+    Vec3f a = eye*dot(Vec3f(0,1,0),eye);
+    Vec3f up = normalize( (Vec3f(0,1,0) - a) );
+    Vec3f pCentre = eye + normalize(eye - camTarget);
+    for (unsigned int i = 0; i < screenWidth; i++)
+        for (unsigned int  j = 0; j < screenHeight; j++) {
+            unsigned int index = 3*(i+j*screenWidth);
+            rayImage[index] = rayImage[index+1] = rayImage[index+2] = rand ()%255;
+            Vec3f posPix = pCentre + (float)(i - screenWidth/2)*normalize(cross(up, (eye - camTarget))) + (float)(j - screenHeight/2)*up;
+            Vec3f direction = normalize(eye - posPix);
+            Ray myRay = Ray(eye, direction);
+            Vec3f intersection = myRay.raySceneIntersection(shapes);
+            float f = myRay.evaluateResponse(shapes, intersection);
+            //rayImage[index] = rayImage[index+1] = rayImage[index+2] = f;
+        }
 }
 
 void display () {  
