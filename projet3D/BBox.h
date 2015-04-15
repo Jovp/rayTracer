@@ -37,7 +37,6 @@ class BBox{
             return 2;
     }
     
-    
     float xL,yL,zL;
     Vec3f coin;
 };

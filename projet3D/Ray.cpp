@@ -67,10 +67,12 @@ Vec3f raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, const V
 };
 
 bool Ray::rayBBoxIntersection(const BBox& box,const float& t0,const float& t1){
+   
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
     std::vector<Vec3f> bounds;
     bounds.push_back(box.coin);
     bounds.push_back(box.coin+Vec3f(box.xL,box.yL,box.zL));
+     //std::cout << "box vs ray : " << box.xL << std::endl;
     if (direction[0] >= 0) {
         tmin = (bounds[0][0] - origin[0]) / direction[0];
         tmax = (bounds[1][0] - origin[0]) / direction[0];
@@ -107,36 +109,17 @@ bool Ray::rayBBoxIntersection(const BBox& box,const float& t0,const float& t1){
         tmin = tzmin;
     if (tzmax < tmax)
         tmax = tzmax;
+    //std::cout << "tmin et t max : "<< tmin << " " << tmax << std::endl;
     return ( (tmin < t1) && (tmax > t0) );
     
 }
 
-void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyobj::shape_t> & shapes,Triangle& triIntersect,Vec3f& b, float& t){
-    /*
-     if (!node.getFeuilleT().empty())
-     {
-     int l=0;
-     while (l < node.getFeuilleT().size()){
-     if (IntersectionRayonTriangle(origin,direction,mesh.V[node.getFeuilleT()[l].v[0]].p,mesh.V[node.getFeuilleT()[l].v[1]].p,mesh.V[node.getFeuilleT()[l].v[2]].p)!=-1) {
-     //std::cout << "niveau feuille" << std::endl;
-     return true;
-     }
-     l++;
-     }
-     
-     return false;
-     }
-     
-     else if (!IntersectionRayonSphere(origin, direction, node.getCenter(), node.getRadius())){
-     //std::cout << "on coupe ce nombre de feuilles : " << node.getNbT() << std::endl;
-     return false;
-     }
-     else if (IntersectionMeshBSH(mesh,*node.getLeftChild(),origin,direction))
-     return true;
-     
-     else return IntersectionMeshBSH(mesh,*node.getRightChild(),origin,direction);
-     */
+void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyobj::shape_t> & shapes,Triangle&
+    triIntersect,Vec3f& b, float& t){
+    //std::cout << "entrée dans le prog " << std::endl;
+    
     if (!tree.feuilleT.empty()) {
+        std::cout << "feuille !!!" << tree.boite.xL << std::endl;
         int l=0;
         while (l<tree.feuilleT.size()) {
             Triangle tri =tree.feuilleT[l];
@@ -148,28 +131,34 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyo
                                       Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[1]],shapes[tri.v[3]].mesh.positions[tri.v[1]+1],shapes[tri.v[3]].mesh.positions[tri.v[1]+2]),
                                       Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[2]],shapes[tri.v[3]].mesh.positions[tri.v[2]+1],shapes[tri.v[3]].mesh.positions[tri.v[2]+2]),
                                       bTemp, tTemp);
-            if (tTemp<t){
+            if (tTemp<t && tTemp>0.01){
                 t=tTemp;
                 b=bTemp;
                 triIntersect=tri;
+                
             }
+            l++;
         }
     }
     
     else if (!this->rayBBoxIntersection(tree.boite,0,MAXFLOAT)) {
-        t=-1;
+        
     }
     else {
         this->raySceneIntersectionKdTree(*tree.leftChild, shapes, triIntersect, b, t);
         this->raySceneIntersectionKdTree(*tree.rightChild, shapes, triIntersect, b, t);
     }
     
-    
+    std::cout << t << std:: endl;
     
 }
 
-float evaluateResponse(Vec3f intersection){
-    return 0;
+Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t){
+    
+    int index = shapes[t.v[3]].mesh.indices[t.v[0]/3];
+    int toto=materials.size();
+    int toto2=shapes[t.v[3]].mesh.indices.size();
+    return Vec3f(255*materials[index].diffuse[0],255*materials[index].diffuse[1],255*materials[index].diffuse[2]);
 };
 
 

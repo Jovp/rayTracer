@@ -41,12 +41,12 @@ BBox computeBoundingBox(const std::vector<tinyobj::shape_t>& shapes,const std::v
     float xdiff=xmax-xmin;
     float ydiff=ymax-ymin;
     float zdiff=zmax-zmin;
-    std::cout << "x min : " << xmin << std::endl;
+    /*std::cout << "x min : " << xmin << std::endl;
     std::cout << "x max : " << xmax << std::endl;
     std::cout << "y min : " << ymin << std::endl;
     std::cout << "y max : " << ymax << std::endl;
     std::cout << "z min : " << zmin << std::endl;
-    std::cout << "z max : " << zmax << std::endl;
+    std::cout << "z max : " << zmax << std::endl;*/
     return BBox(xdiff, ydiff, zdiff, Vec3f(xmin,ymin,zmin));
 }
 
@@ -218,7 +218,7 @@ kdTree::kdTree(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Tri
         //std::cout << "Taille de la liste de triangle : "<< TriangleList.size() << std::endl;
         boite= computeBoundingBox(shapes, TriangleList);
         //std::cout << "boite ok" << std::endl;
-        mediane= findMedianSample(shapes, TriangleList);
+        mediane= findMedianSampleLong(shapes, TriangleList);
         //std::cout << "médiane ok : " << mediane << std::endl;
         axis= boite.maxAxis();
         //std::cout << "max axis : " << axis << std::endl;
@@ -236,14 +236,11 @@ kdTree::kdTree(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Tri
         }
         
         
-        
     }
+    std::cout << "boite test  2 : " <<(this->boite.xL) << std::endl;
     
 }
 
-kdTree::kdTree(const std::vector<tinyobj::shape_t>& shapes){
-    kdTree::kdTree(shapes,TriangleListFromShapes(shapes));
-}
 
 
 

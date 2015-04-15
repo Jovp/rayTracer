@@ -44,13 +44,15 @@ public:
 
 class kdTree{
     public :
-    
-    kdTree(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Triangle>& TriangleList);
-    kdTree(const std::vector<tinyobj::shape_t>& shapes);
-    std::vector<Triangle> feuilleT;
     BBox boite;
     kdTree * leftChild;
     kdTree * rightChild ;
+    
+    kdTree(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Triangle>& TriangleList);
+    kdTree(const std::vector<tinyobj::shape_t>& shapes);
+    kdTree(){};
+    std::vector<Triangle> feuilleT;
+    
     
     private :
     Vec3f mediane;

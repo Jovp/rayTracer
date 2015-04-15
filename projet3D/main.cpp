@@ -17,6 +17,7 @@
 #include "Vec3.h"
 #include "tiny_obj_loader.h"
 #include "kdTree.h"
+#include "Ray.h"
 
 using namespace std;
 
@@ -51,6 +52,10 @@ static bool mouseLeftButtonClicked = false;
 static int clickedX, clickedY;
 static float baseCamPhi;
 static float baseCamTheta;
+
+// Tree
+static kdTree tree;
+
 
 // Raytraced image
 static unsigned char * rayImage = NULL;
@@ -172,7 +177,13 @@ void init (const string & filename) {
   initOpenGL ();
   unsigned int i = filename.find_last_of ("/");
   loadScene (filename, filename.substr (0, i+1));
-  kdTree toto=kdTree(shapes);
+    Triangle tri;
+    Vec3f b;
+    float t=INFINITY-1;
+  tree=kdTree(shapes,TriangleListFromShapes(shapes));
+    //std::cout << "largeur boite : " << tree.boite.xL << std::endl;
+    //Ray(polarToCartesian(camEyePolar),normalize(normalize(camTarget-polarToCartesian(camEyePolar)+normalize(Vec3f(rand(),rand(),rand()))))).raySceneIntersectionKdTree(tree, shapes, tri, b, t);
+    //std::cout << "distance pixel central" << t << std::endl;
   initCamera ();
   initLighting ();
 }
@@ -239,11 +250,33 @@ void displayRayImage () {
 
 // MAIN FUNCTION TO CHANGE !
 void rayTrace () {
-  for (unsigned int i = 0; i < screenWidth; i++)
-	for (unsigned int  j = 0; j < screenHeight; j++) {
-	  unsigned int index = 3*(i+j*screenWidth);
-	  rayImage[index] = rayImage[index+1] = rayImage[index+2] = rand ()%255;
-	}
+    Vec3f eye = polarToCartesian (camEyePolar);
+    Vec3f a = eye*dot(Vec3f(1,0,0),eye);
+    Vec3f up = normalize( cross(Vec3f(0,1,0),normalize(camTarget - eye)) );
+    Vec3f pCentre = eye + normalize(camTarget - eye)/10;
+    std::cout << "direction regard : " << normalize(camTarget - eye) << std::endl;
+    for (unsigned int i = 0; i < screenWidth; i++)
+        for (unsigned int  j = 0; j < screenHeight; j++) {
+            unsigned int index = 3*(i+j*screenWidth);
+            rayImage[index] = rayImage[index+1] = rayImage[index+2] = 0;
+            Vec3f posPix = pCentre + (float)(i - screenWidth/2)*(normalize(cross(up, normalize(camTarget - eye)))/10000) + (float)(j - screenHeight/2)*(up/10000);
+            Vec3f direction = normalize(posPix - eye);
+            Ray myRay = Ray(eye, direction);
+            //Vec3f intersection = myRay.raySceneIntersection(shapes, t);
+            Triangle tri;
+            Vec3f b;
+            float t=INFINITY;
+            myRay.raySceneIntersectionKdTree(tree, shapes, tri, b, t);
+            //std::cout << t << std::endl;
+            Vec3f f = myRay.evaluateResponse(shapes, materials, b, tri);
+            //std::cout << t << std::endl;
+            if (t!=INFINITY) {
+                rayImage[index] = f[0];
+                rayImage[index+1] = f[1];
+                rayImage[index+2] = f[2];
+            }
+            
+        }
 }
 
 void display () {  
