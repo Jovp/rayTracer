@@ -111,7 +111,7 @@ Vec3f findMedianSample(const std::vector<tinyobj::shape_t>& shapes,const std::ve
     std::vector<float> yCentre;
     std::vector<float> zCentre;
     
-    //std::cout << "cherche la médiane" << std::endl;
+    // std::cout << "cherche la médiane" << std::endl;
     
     for (unsigned int i = 0; i < TriangleList.size (); i++){
         Triangle t = TriangleList[i];

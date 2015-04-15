@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Vec3.h"
+#include "BBox.h"
 
 class Ray {
 public:

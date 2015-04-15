@@ -52,6 +52,53 @@ Vec3f raySceneIntersection(std::vector<tinyobj::shape_t> shapes){
     return toto;
 };
 
+bool rayBBoxIntersection(const BBox& box,const Ray& r, float t0, float t1){
+        float tmin, tmax, tymin, tymax, tzmin, tzmax;
+    std::vector<Vec3f> bounds;
+    bounds.push_back(box.coin);
+    bounds.push_back(box.coin+Vec3f(box.xL,box.yL,box.zL));
+        if (r.direction[0] >= 0) {
+            tmin = (bounds[0][0] - r.origin[0]) / r.direction[0];
+            tmax = (bounds[1][0] - r.origin[0]) / r.direction[0];
+        }
+        else {
+            tmin = (bounds[1][0] - r.origin[0]) / r.direction[0];
+            tmax = (bounds[0][0] - r.origin[0]) / r.direction[0];
+        }
+        if (r.direction[1] >= 0) {
+            tymin = (bounds[0][1] - r.origin[1]) / r.direction[1];
+            tymax = (bounds[1][1] - r.origin[1]) / r.direction[1];
+        }
+        else {
+            tymin = (bounds[1][1] - r.origin[1]) / r.direction[1];
+            tymax = (bounds[0][1] - r.origin[1]) / r.direction[1];
+        }
+        if ( (tmin > tymax) || (tymin > tmax) )
+            return false;
+        if (tymin > tmin)
+        tmin = tymin;
+        if (tymax < tmax)
+            tmax = tymax;
+        if (r.direction[2] >= 0) {
+            tzmin = (bounds[0][2] - r.origin[2]) / r.direction[2];
+            tzmax = (bounds[1][2] - r.origin[2]) / r.direction[2];
+        }
+        else {
+            tzmin = (bounds[1][2] - r.origin[2]) / r.direction[2];
+            tzmax = (bounds[0][2] - r.origin[2]) / r.direction[2];
+        }
+        if ( (tmin > tzmax) || (tzmin > tmax) )
+            return false;
+        if (tzmin > tmin)
+            tmin = tzmin;
+        if (tzmax < tmax)
+            tmax = tzmax;
+        return ( (tmin < t1) && (tmax > t0) );
+    
+}
+
+
+
 float evaluateResponse(Vec3f intersection){
     return 0;
 };
