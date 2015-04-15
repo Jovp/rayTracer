@@ -24,8 +24,8 @@ public:
     Ray(Vec3f _origin, Vec3f _direction)
     : origin(_origin), direction(_direction){}
     
-    Vec3f rayTriangleIntersection (Vec3f o, Vec3f w,float p0,float p1,float p2);
-    Vec3f raySceneIntersection();
+    void rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d);
+    Vec3f raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t, float & d);
     bool rayBBoxIntersection(const BBox& box,const float& t0,const float& t1);
     void raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyobj::shape_t> & shapes,Triangle& triIntersect,Vec3f& b, float& t);
     Vec3f evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t);

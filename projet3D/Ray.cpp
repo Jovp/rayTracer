@@ -10,35 +10,38 @@
 
 
 
-void IntersectionRayonTriangle (const Vec3f & o,const Vec3f & w,const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d){
+void Ray::rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d){
     
     Vec3f e0 = p1-p0;
     Vec3f e1 = p2-p0;
     Vec3f n = normalize(cross(e0,e1));
-    Vec3f q = cross(w,e1);
+    Vec3f q = cross(direction,e1);
     float a = dot(e0,q);
-    if( dot(n,w) >= 0 || std::abs(a) < 0.01 ){
+    if( dot(n,direction) >= 0 || std::abs(a) < 0.0000001 ){
         //return nullptr;
+        return;
     }
-    Vec3f s = (o - p0)/a;
+    Vec3f s = (origin - p0)/a;
     Vec3f r = cross(s,e0);
     float b0 = dot(s,q);
-    float b1 = dot(r,w);
+    float b1 = dot(r,direction);
     float b2 = 1 - b0 - b1;
     if( b0 < 0 || b1 < 0 || b2 < 0){
         //return nullptr;
+        return;
     }
     float t = dot(e1,r);
-    if(t>=0){
+    if( t >= 0.0 ){
         //return  Vec3f(b0,b1,b2);
         b = Vec3f(b0, b1, b2);
         d = t;
     }
     // return nullptr;
+    return;
 };
 
 
-Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t){
+Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t, float& d){
     float distMin = INFINITY;
     Vec3f intersection;
     for (size_t s = 0; s < shapes.size (); s++){
@@ -73,6 +76,7 @@ Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tr
             }
         }
     }
+    d=distMin;
     return intersection;
 };
 
@@ -136,7 +140,7 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyo
             Vec3f bTemp;
             float tTemp=INFINITY;
             // origin, direction, coord triangle , coordonnée barycentrique, distance caméra !
-            IntersectionRayonTriangle(origin, direction,
+            this->rayTriangleIntersection(
                                       Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[0]],shapes[tri.v[3]].mesh.positions[tri.v[0]+1],shapes[tri.v[3]].mesh.positions[tri.v[0]+2]),
                                       Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[1]],shapes[tri.v[3]].mesh.positions[tri.v[1]+1],shapes[tri.v[3]].mesh.positions[tri.v[1]+2]),
                                       Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[2]],shapes[tri.v[3]].mesh.positions[tri.v[2]+1],shapes[tri.v[3]].mesh.positions[tri.v[2]+2]),

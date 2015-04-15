@@ -252,7 +252,8 @@ void displayRayImage () {
 void rayTrace () {
     Vec3f eye = polarToCartesian (camEyePolar);
     Vec3f pCentre = eye + normalize(camTarget - eye);
-    
+    float tmin=INFINITY;
+    float tmax=0;
     float fovx=fovAngle*(2*M_PI/360);
     float fovy=(fovx*screenHeight)/screenWidth;
     // on prend un plan image ˆ une distance 1
@@ -274,17 +275,25 @@ void rayTrace () {
             Triangle tri;
             Vec3f b;
             float t=INFINITY;
-            myRay.raySceneIntersectionKdTree(tree, shapes, tri, b, t);
+            myRay.raySceneIntersection(shapes, tri, t);
             //std::cout << t << std::endl;
             Vec3f f = myRay.evaluateResponse(shapes, materials, b, tri);
             //std::cout << t << std::endl;
-            if (t!=INFINITY) {
+            if (t< tmin){
+              tmin=t;
+            }
+            if (t> tmax){
+                tmax=t;
+            }
+            if (t!=INFINITY && t> (tmin+tmax)/2) {
                 rayImage[index] = f[0];
                 rayImage[index+1] = f[1];
                 rayImage[index+2] = f[2];
             }
             
         }}
+    std::cout << " tmin : " << tmin << std::endl;
+        std::cout << " tmax : " << tmax << std::endl;
 }
 
 void display () {  
