@@ -280,11 +280,11 @@ void rayTrace () {
             Ray myRay = Ray(eye, direction);
             //Vec3f intersection = myRay.raySceneIntersection(shapes, t);
             Triangle tri;
-            Vec3f b;
+            Vec3f coordBar;
             float t=INFINITY;
-            myRay.raySceneIntersection(shapes, tri, t);
+            myRay.raySceneIntersection(shapes, tri, t, coordBar);
             //std::cout << t << std::endl;
-            Vec3f f = myRay.evaluateResponse(shapes, materials, b, tri, lightPos);
+            Vec3f f = myRay.evaluateResponse(shapes, materials, coordBar, tri, lightPos);
             //std::cout << t << std::endl;
             if (t< tmin){
               tmin=t;

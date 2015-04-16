@@ -41,10 +41,9 @@ void Ray::rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f
 };
 
 
-Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t, float& d){
-
+void Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t, float& d, Vec3f& intersection){
+    
     float distMin = INFINITY;
-    Vec3f intersection;
     for (size_t s = 0; s < shapes.size (); s++){
         for (size_t f = 0; f < shapes[s].mesh.indices.size() / 3; f++) {
             unsigned int index[3];
@@ -52,7 +51,7 @@ Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tr
                 index[v] = 3*shapes[s].mesh.indices[3*f+v];
             }
             Vec3f p0, p1, p2;
-
+            
             
             p0[0] = shapes[s].mesh.positions[index[0]];
             p0[1] = shapes[s].mesh.positions[index[0]+1];
@@ -65,7 +64,7 @@ Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tr
             p2[0] = shapes[s].mesh.positions[index[2]];
             p2[1] = shapes[s].mesh.positions[index[2]+1];
             p2[2] = shapes[s].mesh.positions[index[2]+2];
-            Vec3f b;
+            Vec3f b=Vec3f(0,0,0);
             float d=INFINITY;
             rayTriangleIntersection(p0, p1, p2, b, d);
             if (d<distMin) {
@@ -80,16 +79,15 @@ Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tr
         }
     }
     d=distMin;
-    return intersection;
 };
 
 bool Ray::rayBBoxIntersection(const BBox& box,const float& t0,const float& t1){
-   
+    
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
     std::vector<Vec3f> bounds;
     bounds.push_back(box.coin);
     bounds.push_back(box.coin+Vec3f(box.xL,box.yL,box.zL));
-     //std::cout << "box vs ray : " << box.xL << std::endl;
+    //std::cout << "box vs ray : " << box.xL << std::endl;
     if (direction[0] >= 0) {
         tmin = (bounds[0][0] - origin[0]) / direction[0];
         tmax = (bounds[1][0] - origin[0]) / direction[0];
@@ -132,7 +130,7 @@ bool Ray::rayBBoxIntersection(const BBox& box,const float& t0,const float& t1){
 }
 
 void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyobj::shape_t> & shapes,Triangle&
-    triIntersect,Vec3f& b, float& t){
+                                     triIntersect,Vec3f& b, float& t){
     //std::cout << "entrée dans le prog " << std::endl;
     
     if (!tree.feuilleT.empty()) {
@@ -144,10 +142,10 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyo
             float tTemp=INFINITY;
             // origin, direction, coord triangle , coordonnée barycentrique, distance caméra !
             this->rayTriangleIntersection(
-                                      Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[0]],shapes[tri.v[3]].mesh.positions[tri.v[0]+1],shapes[tri.v[3]].mesh.positions[tri.v[0]+2]),
-                                      Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[1]],shapes[tri.v[3]].mesh.positions[tri.v[1]+1],shapes[tri.v[3]].mesh.positions[tri.v[1]+2]),
-                                      Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[2]],shapes[tri.v[3]].mesh.positions[tri.v[2]+1],shapes[tri.v[3]].mesh.positions[tri.v[2]+2]),
-                                      bTemp, tTemp);
+                                          Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[0]],shapes[tri.v[3]].mesh.positions[tri.v[0]+1],shapes[tri.v[3]].mesh.positions[tri.v[0]+2]),
+                                          Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[1]],shapes[tri.v[3]].mesh.positions[tri.v[1]+1],shapes[tri.v[3]].mesh.positions[tri.v[1]+2]),
+                                          Vec3f(shapes[tri.v[3]].mesh.positions[tri.v[2]],shapes[tri.v[3]].mesh.positions[tri.v[2]+1],shapes[tri.v[3]].mesh.positions[tri.v[2]+2]),
+                                          bTemp, tTemp);
             if (tTemp<t && tTemp>1){
                 t=tTemp;
                 b=bTemp;
@@ -172,17 +170,23 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyo
 float Brdf_Lambert(float Kd) {
     return (Kd/M_PI);
 }
-float Brdf_GGX(const Vec3f & p, const Vec3f & n, Vec3f Light_toV, Vec3f cam_pos) {
+float Brdf_GGX(const Vec3f & p, const Vec3f & n,const Vec3f& light,const Vec3f& cam_pos) {
     // Paramètres :
     
     const float alpha=1;
     const float F0=0.3; //Plastique (diélectrique) : 0.3 à 0.5 Aluminium (conducteur) : [0.91, 0.92, 0.92], « reflet coloré », variance significative selon la longueur d’onde
     
     // A FAIRE  f_s = D.F.G
-    Vec3f Wo=normalize(Light_toV);
+    Vec3f Wo=normalize(cam_pos - p);
     
-    Vec3f Wi=normalize(cam_pos - p);
+    Vec3f Wi=normalize(light - p);
     
+    // On teste si le triangle peut être éclairé
+    if (dot(Wi,n)<0) {
+        return 0;
+    }
+    else
+    {
     Vec3f Wh=normalize(Wi+Wo);
     
     // Distribution
@@ -192,35 +196,57 @@ float Brdf_GGX(const Vec3f & p, const Vec3f & n, Vec3f Light_toV, Vec3f cam_pos)
     float Wih=dot(Wi, Wh);
     float F=F0+(1-F0)*pow((1-(0.0>Wih ? 0.0 : Wih)),5); // Attention on a pas mis le max ! Sert-il a qqch ?
     
-    // Terme Géométrique Cook-Torrance
+    // Terme Géométrique GGX
     
-    float Ombr=2*(dot(n,Wh)*dot(n,Wi))/(dot(Wo, Wh));
-    float Masq=2*(dot(n,Wh)*dot(n,Wo))/(dot(Wo, Wh));
-    float min1=(Masq<Ombr ? Masq : Ombr);
-    float G = 1<min1 ? 1 :min1;
+    float GWi=2*dot(n,Wi)/(dot(n,Wi)+sqrt(alpha*alpha+(1-alpha*alpha)*pow(dot(n,Wi),2)));
+    float GWo=2*dot(n,Wo)/(dot(n,Wo)+sqrt(alpha*alpha+(1-alpha*alpha)*pow(dot(n,Wo),2)));
+    
+    float G = GWi*GWo;
     
     return D*F*G/(4*dot(n,Wi)*dot(n,Wo));
+    }
 }
 
+float attenuation(Vec3f v){
+    float ac=1,al=1e-3,aq=1e-7;
+    float d=v.length();
+    return 1/(ac+al*d+aq*d*d);
+}
 
 Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t, Vec3f lightPos){
-    Vec3f p, n;
-    float L[3];
-    for (int i=0; i<3; i++) {
-        p[0] = shapes[t.v[3]].mesh.positions[t.v[i]];
-        p[1] = shapes[t.v[3]].mesh.positions[t.v[i]+1];
-        p[2] = shapes[t.v[3]].mesh.positions[t.v[i]+2];
+    if (intersection==Vec3f(0,0,0)) {
+        return Vec3f(0,0,0);
+    }
+    else {
+        float light_power= 2550;
+        Vec3f p=Vec3f(0,0,0);
+        Vec3f n=Vec3f(0,0,0);
         
-        n[0] = shapes[t.v[3]].mesh.normals[t.v[i]];
-        n[1] = shapes[t.v[3]].mesh.normals[t.v[i]+1];
-        n[2] = shapes[t.v[3]].mesh.normals[t.v[i]+2];
+        for (int i=0; i<3; i++) {
+            p[0] += intersection[i]*shapes[t.v[3]].mesh.positions[t.v[i]];
+            p[1] += intersection[i]*shapes[t.v[3]].mesh.positions[t.v[i]+1];
+            p[2] += intersection[i]*shapes[t.v[3]].mesh.positions[t.v[i]+2];
+            
+        }
         
-        L[i] = Brdf_GGX(p, n, normalize(p-lightPos), origin);
+        Vec3f e0 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[1]],shapes[t.v[3]].mesh.positions[t.v[1]+1],shapes[t.v[3]].mesh.positions[t.v[1]+2])-Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
+        Vec3f e1 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[2]],shapes[t.v[3]].mesh.positions[t.v[2]+1],shapes[t.v[3]].mesh.positions[t.v[2]+2])-Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
+        n = normalize(cross(e0,e1));
+        
+        int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
+        float LWi=attenuation(lightPos-p);
+        float projection=dot(normalize(lightPos-p),normalize(n));
+        
+        float GGX=Brdf_GGX(p, n, lightPos,  origin);
+        Vec3f diffu=Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
+        Vec3f spéculaire=Vec3f(GGX*materials[index].specular[0],GGX*materials[index].specular[1],GGX*materials[index].specular[2]);
+        Vec3f f=spéculaire+diffu;
+        
+        std::cout << projection << std::endl;
+        
+        return LWi*projection*light_power*f;
     }
     
-    int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
-    return Vec3f(/*255,255,255*/255*materials[index].diffuse[0],255*materials[index].diffuse[1],255*materials[index].diffuse[2]);
-
 };
 
 
