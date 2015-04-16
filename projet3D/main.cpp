@@ -250,26 +250,33 @@ void displayRayImage () {
 
 // MAIN FUNCTION TO CHANGE !
 void rayTrace () {
+    glMatrixMode (GL_PROJECTION); // Set the projection matrix as current. All upcoming matrix manipulations will affect it.
+    glLoadIdentity ();
+    gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane); // Set the current projection matrix with the camera intrinsics
+    glMatrixMode (GL_MODELVIEW); // Set the modelview matrix as current. All upcoming matrix manipulations will affect it.
+    glLoadIdentity ();
     Vec3f eye = polarToCartesian (camEyePolar);
+    swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
+    eye += camTarget;
     Vec3f pCentre = eye + normalize(camTarget - eye);
     float tmin=INFINITY;
     float tmax=0;
     float fovx=fovAngle*(2*M_PI/360);
-    float fovy=(fovx*screenHeight)/screenWidth;
+    float fovy=fovx*float(screenHeight)/float(screenWidth);
     // on prend un plan image ˆ une distance 1
-    Vec3f up = normalize( Vec3f(0,0,1)-dot(normalize(camTarget - eye),Vec3f(0,0,1))*normalize(camTarget - eye) );
+    Vec3f up = normalize( Vec3f(0,1,0)-dot(normalize(camTarget - eye),Vec3f(0,1,0))*normalize(camTarget - eye) );
     std::cout << "direction regard : " << normalize(camTarget - eye) << std::endl;
     std::cout << "taille up : " << up.length() << std::endl;
-    std::cout << "position oeil : " << eye << std::endl;
-    for (unsigned int i = 0; i < screenHeight; i++){
-        for (unsigned int  j = 0; j < screenWidth; j++) {
+    std::cout << "produit scalaire : " << dot(normalize(camTarget - eye),up) << std::endl;
+    for (int i = 0; i < screenHeight; i++){
+        for ( int  j = 0; j < screenWidth; j++) {
             unsigned int index = 3*(j+i*screenWidth);
             rayImage[index] = rayImage[index+1] = rayImage[index+2] = 0;
-            float x = (2*j-screenWidth)*tan(fovx)/screenWidth;
-            float y = (2*i-screenHeight)*tan(fovy)/screenHeight;
+            float x = -(float((2*j-int(screenWidth)))*tan(fovx))/int(screenWidth);
+            float y = (float((2*i-int(screenHeight)))*tan(fovy))/int(screenHeight);
             Vec3f posPix = pCentre + x*normalize(cross(up, normalize(camTarget - eye))) + y*up;
             Vec3f direction = normalize(posPix - eye);
-            std::cout << direction << std::endl;
+            //std::cout << x << " " << y << std::endl;
             Ray myRay = Ray(eye, direction);
             //Vec3f intersection = myRay.raySceneIntersection(shapes, t);
             Triangle tri;
@@ -285,7 +292,7 @@ void rayTrace () {
             if (t> tmax){
                 tmax=t;
             }
-            if (t!=INFINITY && t> (tmin+tmax)/2) {
+            if (t!=INFINITY ) {
                 rayImage[index] = f[0];
                 rayImage[index+1] = f[1];
                 rayImage[index+2] = f[2];

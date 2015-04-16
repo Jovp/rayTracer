@@ -64,10 +64,10 @@ Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tr
             p2[1] = shapes[s].mesh.positions[index[2]+1];
             p2[2] = shapes[s].mesh.positions[index[2]+2];
             Vec3f b;
-            float d;
+            float d=INFINITY;
             rayTriangleIntersection(p0, p1, p2, b, d);
-            if (dist(origin, b)<distMin) {
-                distMin = dist(origin, b);
+            if (d<distMin) {
+                distMin = d;
                 intersection = b;
                 t.v[0] = index[0];
                 t.v[1] = index[1];
