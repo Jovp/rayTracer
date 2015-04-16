@@ -73,6 +73,7 @@ Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tr
                 t.v[1] = index[1];
                 t.v[2] = index[2];
                 t.v[3] = s;
+                t.v[4] = f;
             }
         }
     }
@@ -169,13 +170,13 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyo
 
 Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t){
     
-    int index = shapes[t.v[3]].mesh.material_ids[0];
+    int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
     /*int toto=materials.size();
     int toot=shapes[t.v[3]].mesh.indices.size();
     int toto2=shapes[t.v[3]].mesh.material_ids.size();
     int toto21=shapes[t.v[3]].mesh.material_ids[1];
     int toto22=shapes[t.v[3]].mesh.material_ids[2];*/
-    return Vec3f(255,255,255/*255*materials[index].diffuse[0],255*materials[index].diffuse[1],255*materials[index].diffuse[2]*/);
+    return Vec3f(/*255,255,255*/255*materials[index].diffuse[0],255*materials[index].diffuse[1],255*materials[index].diffuse[2]);
 };
 
 

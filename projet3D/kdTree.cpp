@@ -203,7 +203,7 @@ std::vector<Triangle> TriangleListFromShapes(const std::vector<tinyobj::shape_t>
                 unsigned int index0 = 3*shapes[s].mesh.indices[3*f];
                 unsigned int index1 = 3*shapes[s].mesh.indices[3*f+1];
                 unsigned int index2 = 3*shapes[s].mesh.indices[3*f+2];
-                TriangleF.push_back(Triangle(index0,index1,index2,s));
+                TriangleF.push_back(Triangle(index0,index1,index2,s,f));
         }
     return TriangleF;
 }
