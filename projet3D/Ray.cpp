@@ -64,8 +64,10 @@ void Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tri
             p2[0] = shapes[s].mesh.positions[index[2]];
             p2[1] = shapes[s].mesh.positions[index[2]+1];
             p2[2] = shapes[s].mesh.positions[index[2]+2];
+
             Vec3f b=Vec3f(0,0,0);
             float d=INFINITY;
+
             rayTriangleIntersection(p0, p1, p2, b, d);
             if (d<distMin) {
                 distMin = d;
@@ -73,8 +75,8 @@ void Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tri
                 t.v[0] = index[0];
                 t.v[1] = index[1];
                 t.v[2] = index[2];
-                t.v[3] = s;
-                t.v[4] = f;
+                t.v[3] = (unsigned int)s;
+                t.v[4] = (unsigned int)f;
             }
         }
     }
@@ -218,31 +220,36 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
         return Vec3f(0,0,0);
     }
     else {
-        float light_power= 2550;
+        float light_power= 100;
         Vec3f p=Vec3f(0,0,0);
         Vec3f n=Vec3f(0,0,0);
         
         for (int i=0; i<3; i++) {
+            //Interpolation de la position de l'intersection
             p[0] += intersection[i]*shapes[t.v[3]].mesh.positions[t.v[i]];
             p[1] += intersection[i]*shapes[t.v[3]].mesh.positions[t.v[i]+1];
             p[2] += intersection[i]*shapes[t.v[3]].mesh.positions[t.v[i]+2];
             
         }
         
-        Vec3f e0 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[1]],shapes[t.v[3]].mesh.positions[t.v[1]+1],shapes[t.v[3]].mesh.positions[t.v[1]+2])-Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
-        Vec3f e1 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[2]],shapes[t.v[3]].mesh.positions[t.v[2]+1],shapes[t.v[3]].mesh.positions[t.v[2]+2])-Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
+        //Calcul de la normale au triangle t
+        Vec3f e0 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[1]],shapes[t.v[3]].mesh.positions[t.v[1]+1],shapes[t.v[3]].mesh.positions[t.v[1]+2]) - Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
+        Vec3f e1 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[2]],shapes[t.v[3]].mesh.positions[t.v[2]+1],shapes[t.v[3]].mesh.positions[t.v[2]+2]) - Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
         n = normalize(cross(e0,e1));
         
+        //Calcul de l'index pour materials
         int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
-        float LWi=attenuation(lightPos-p);
-        float projection=dot(normalize(lightPos-p),normalize(n));
         
-        float GGX=Brdf_GGX(p, n, lightPos,  origin);
-        Vec3f diffu=Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
-        Vec3f spéculaire=Vec3f(GGX*materials[index].specular[0],GGX*materials[index].specular[1],GGX*materials[index].specular[2]);
-        Vec3f f=spéculaire+diffu;
+        tinyobj::shape_t shape = (shapes[t.v[3]]);
+        float LWi = attenuation(lightPos-p);
+        float projection = dot(normalize(lightPos-p),normalize(n));
         
-        std::cout << projection << std::endl;
+        float GGX = Brdf_GGX(p, n, lightPos,  origin);
+        Vec3f diffu = Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
+        Vec3f spéculaire = Vec3f(GGX*materials[index].specular[0],GGX*materials[index].specular[1],GGX*materials[index].specular[2]);
+        Vec3f f = spéculaire + diffu;
+        
+        //std::cout << projection << std::endl;
         
         return LWi*projection*light_power*f;
     }

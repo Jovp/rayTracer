@@ -258,16 +258,27 @@ void rayTrace () {
     Vec3f eye = polarToCartesian (camEyePolar);
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
+    
     Vec3f pCentre = eye + normalize(camTarget - eye);
     float tmin=INFINITY;
     float tmax=0;
     float fovx=fovAngle*(2*M_PI/360);
     float fovy=fovx*float(screenHeight)/float(screenWidth);
-    // on prend un plan image � une distance 1
+    // on prend un plan image a une distance 1
     Vec3f up = normalize( Vec3f(0,1,0)-dot(normalize(camTarget - eye),Vec3f(0,1,0))*normalize(camTarget - eye) );
     std::cout << "direction regard : " << normalize(camTarget - eye) << std::endl;
     std::cout << "taille up : " << up.length() << std::endl;
     std::cout << "produit scalaire : " << dot(normalize(camTarget - eye),up) << std::endl;
+    
+    // Raytraced image intermediaire en float
+    float * rayImage2 = NULL;
+    if (rayImage2 != NULL)
+        delete [] rayImage2;
+    unsigned int l = 3*screenWidth*screenHeight;
+    rayImage2 = new float [l];
+    memset (rayImage2, 0, l);
+    float max[3] = {-INFINITY,-INFINITY,-INFINITY};
+    float min[3] = {INFINITY,INFINITY,INFINITY};
     for (int i = 0; i < screenHeight; i++){
         for ( int  j = 0; j < screenWidth; j++) {
             unsigned int index = 3*(j+i*screenWidth);
@@ -293,12 +304,31 @@ void rayTrace () {
                 tmax=t;
             }
             if (t!=INFINITY ) {
-                rayImage[index] = f[0];
-                rayImage[index+1] = f[1];
-                rayImage[index+2] = f[2];
+                for (int n=0; n<3; n++) {
+                    if (f[n]>max[n])
+                        max[n] = f[n];
+                    if (f[n]<min[n])
+                        min[n] = f[n];
+                }
+                
+                rayImage2[index] = f[0];
+                rayImage2[index+1] = f[1];
+                rayImage2[index+2] = f[2];
             }
             
-        }}
+        }
+    }
+    
+    for (int i = 0; i < screenHeight; i++){
+        for ( int  j = 0; j < screenWidth; j++) {
+            unsigned int index = 3*(j+i*screenWidth);
+            rayImage[index] = rayImage[index+1] = rayImage[index+2] = 0;
+            
+            rayImage[index]   = 255*(rayImage2[index]   )/(max[0]);
+            rayImage[index+1] = 255*(rayImage2[index+1] )/(max[1]);
+            rayImage[index+2] = 255*(rayImage2[index+2] )/(max[2]);
+        }
+    }
     std::cout << " tmin : " << tmin << std::endl;
         std::cout << " tmax : " << tmax << std::endl;
 }
