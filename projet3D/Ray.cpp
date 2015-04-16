@@ -40,12 +40,9 @@ void Ray::rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f
     return;
 };
 
-<<<<<<< HEAD
 
 Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t, float& d){
-=======
-Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t){
->>>>>>> origin/Alex3
+
     float distMin = INFINITY;
     Vec3f intersection;
     for (size_t s = 0; s < shapes.size (); s++){
@@ -55,7 +52,7 @@ Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tr
                 index[v] = 3*shapes[s].mesh.indices[3*f+v];
             }
             Vec3f p0, p1, p2;
-<<<<<<< HEAD
+
             
             p0[0] = shapes[s].mesh.positions[index[0]];
             p0[1] = shapes[s].mesh.positions[index[0]+1];
@@ -206,17 +203,6 @@ float Brdf_GGX(const Vec3f & p, const Vec3f & n, Vec3f Light_toV, Vec3f cam_pos)
 }
 
 
-<<<<<<< HEAD
-Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t){
-    
-    int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
-    /*int toto=materials.size();
-    int toot=shapes[t.v[3]].mesh.indices.size();
-    int toto2=shapes[t.v[3]].mesh.material_ids.size();
-    int toto21=shapes[t.v[3]].mesh.material_ids[1];
-    int toto22=shapes[t.v[3]].mesh.material_ids[2];*/
-    return Vec3f(/*255,255,255*/255*materials[index].diffuse[0],255*materials[index].diffuse[1],255*materials[index].diffuse[2]);
-=======
 Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t, Vec3f lightPos){
     Vec3f p, n;
     float L[3];
@@ -232,9 +218,9 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
         L[i] = Brdf_GGX(p, n, normalize(p-lightPos), origin);
     }
     
-    int index = shapes[t.v[3]].mesh.material_ids[t.v[0]];
-    return Vec3f(materials[index].diffuse[0],materials[index].diffuse[1],materials[index].diffuse[2]);
->>>>>>> origin/Alex3
+    int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
+    return Vec3f(/*255,255,255*/255*materials[index].diffuse[0],255*materials[index].diffuse[1],255*materials[index].diffuse[2]);
+
 };
 
 

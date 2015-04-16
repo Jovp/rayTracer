@@ -284,7 +284,7 @@ void rayTrace () {
             float t=INFINITY;
             myRay.raySceneIntersection(shapes, tri, t);
             //std::cout << t << std::endl;
-            Vec3f f = myRay.evaluateResponse(shapes, materials, b, tri);
+            Vec3f f = myRay.evaluateResponse(shapes, materials, b, tri, lightPos);
             //std::cout << t << std::endl;
             if (t< tmin){
               tmin=t;
