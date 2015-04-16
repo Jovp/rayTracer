@@ -1,5 +1,5 @@
 // ----------------------------------------------
-// Informatique Graphique 3D & Réalité Virtuelle.
+// Informatique Graphique 3D & Rï¿½alitï¿½ Virtuelle.
 // Projet
 // Lancer de Rayon de Monte Carlo
 // Copyright (C) 2015 Tamy Boubekeur
@@ -175,7 +175,7 @@ void initLighting () {
 
 void init (const string & filename) {  
   initOpenGL ();
-  unsigned int i = filename.find_last_of ("/");
+  unsigned int i = (unsigned int) filename.find_last_of ("/");
   loadScene (filename, filename.substr (0, i+1));
     Triangle tri;
     Vec3f b;
@@ -263,7 +263,7 @@ void rayTrace () {
     float tmax=0;
     float fovx=fovAngle*(2*M_PI/360);
     float fovy=fovx*float(screenHeight)/float(screenWidth);
-    // on prend un plan image ˆ une distance 1
+    // on prend un plan image ï¿½ une distance 1
     Vec3f up = normalize( Vec3f(0,1,0)-dot(normalize(camTarget - eye),Vec3f(0,1,0))*normalize(camTarget - eye) );
     std::cout << "direction regard : " << normalize(camTarget - eye) << std::endl;
     std::cout << "taille up : " << up.length() << std::endl;

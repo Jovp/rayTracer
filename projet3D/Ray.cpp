@@ -40,8 +40,12 @@ void Ray::rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f
     return;
 };
 
+<<<<<<< HEAD
 
 Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t, float& d){
+=======
+Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t){
+>>>>>>> origin/Alex3
     float distMin = INFINITY;
     Vec3f intersection;
     for (size_t s = 0; s < shapes.size (); s++){
@@ -51,6 +55,7 @@ Vec3f Ray::raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Tr
                 index[v] = 3*shapes[s].mesh.indices[3*f+v];
             }
             Vec3f p0, p1, p2;
+<<<<<<< HEAD
             
             p0[0] = shapes[s].mesh.positions[index[0]];
             p0[1] = shapes[s].mesh.positions[index[0]+1];
@@ -167,7 +172,41 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyo
     //std::cout << t << std:: endl;
     
 }
+float Brdf_Lambert(float Kd) {
+    return (Kd/M_PI);
+}
+float Brdf_GGX(const Vec3f & p, const Vec3f & n, Vec3f Light_toV, Vec3f cam_pos) {
+    // Paramètres :
+    
+    const float alpha=1;
+    const float F0=0.3; //Plastique (diélectrique) : 0.3 à 0.5 Aluminium (conducteur) : [0.91, 0.92, 0.92], « reflet coloré », variance significative selon la longueur d’onde
+    
+    // A FAIRE  f_s = D.F.G
+    Vec3f Wo=normalize(Light_toV);
+    
+    Vec3f Wi=normalize(cam_pos - p);
+    
+    Vec3f Wh=normalize(Wi+Wo);
+    
+    // Distribution
+    float D=(alpha*alpha)/(M_PI*pow((1+(alpha*alpha-1)*pow(dot(n,Wh),2)),2));
+    
+    // Terme de fresnel
+    float Wih=dot(Wi, Wh);
+    float F=F0+(1-F0)*pow((1-(0.0>Wih ? 0.0 : Wih)),5); // Attention on a pas mis le max ! Sert-il a qqch ?
+    
+    // Terme Géométrique Cook-Torrance
+    
+    float Ombr=2*(dot(n,Wh)*dot(n,Wi))/(dot(Wo, Wh));
+    float Masq=2*(dot(n,Wh)*dot(n,Wo))/(dot(Wo, Wh));
+    float min1=(Masq<Ombr ? Masq : Ombr);
+    float G = 1<min1 ? 1 :min1;
+    
+    return D*F*G/(4*dot(n,Wi)*dot(n,Wo));
+}
 
+
+<<<<<<< HEAD
 Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t){
     
     int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
@@ -177,6 +216,25 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
     int toto21=shapes[t.v[3]].mesh.material_ids[1];
     int toto22=shapes[t.v[3]].mesh.material_ids[2];*/
     return Vec3f(/*255,255,255*/255*materials[index].diffuse[0],255*materials[index].diffuse[1],255*materials[index].diffuse[2]);
+=======
+Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t, Vec3f lightPos){
+    Vec3f p, n;
+    float L[3];
+    for (int i=0; i<3; i++) {
+        p[0] = shapes[t.v[3]].mesh.positions[t.v[i]];
+        p[1] = shapes[t.v[3]].mesh.positions[t.v[i]+1];
+        p[2] = shapes[t.v[3]].mesh.positions[t.v[i]+2];
+        
+        n[0] = shapes[t.v[3]].mesh.normals[t.v[i]];
+        n[1] = shapes[t.v[3]].mesh.normals[t.v[i]+1];
+        n[2] = shapes[t.v[3]].mesh.normals[t.v[i]+2];
+        
+        L[i] = Brdf_GGX(p, n, normalize(p-lightPos), origin);
+    }
+    
+    int index = shapes[t.v[3]].mesh.material_ids[t.v[0]];
+    return Vec3f(materials[index].diffuse[0],materials[index].diffuse[1],materials[index].diffuse[2]);
+>>>>>>> origin/Alex3
 };
 
 
