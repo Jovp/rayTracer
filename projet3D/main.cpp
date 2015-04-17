@@ -171,6 +171,7 @@ void initLighting () {
   glLightfv (GL_LIGHT0, GL_DIFFUSE, color);
   glLightfv (GL_LIGHT0, GL_SPECULAR, color);
   glEnable (GL_LIGHT0);
+    lightPos=Vec3f(278,546,279.5);
 }
 
 void init (const string & filename) {  
@@ -250,6 +251,8 @@ void displayRayImage () {
 
 // MAIN FUNCTION TO CHANGE !
 void rayTrace () {
+    
+    tree=kdTree(shapes,TriangleListFromShapes(shapes));
     glMatrixMode (GL_PROJECTION); // Set the projection matrix as current. All upcoming matrix manipulations will affect it.
     glLoadIdentity ();
     gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane); // Set the current projection matrix with the camera intrinsics
@@ -290,11 +293,14 @@ void rayTrace () {
             //std::cout << x << " " << y << std::endl;
             Ray myRay = Ray(eye, direction);
             //Vec3f intersection = myRay.raySceneIntersection(shapes, t);
-            Triangle tri;
-            Vec3f coordBar;
+            Triangle tri(0,0,0,0,0);
+            Vec3f coordBar(0,0,0);
             float t=INFINITY;
-            myRay.raySceneIntersection(shapes, tri, t, coordBar);
-            //std::cout << t << std::endl;
+            myRay.raySceneIntersectionKdTree(tree, shapes, tri, coordBar, t);
+            if (tri.v[3]==9) {
+                std::cout << "999" << std::endl;
+            }
+            //std::cout << tri[0] << std::endl;
             Vec3f f = myRay.evaluateResponse(shapes, materials, coordBar, tri, lightPos);
             //std::cout << t << std::endl;
             if (t< tmin){
@@ -319,6 +325,8 @@ void rayTrace () {
         }
     }
     
+    
+    
     for (int i = 0; i < screenHeight; i++){
         for ( int  j = 0; j < screenWidth; j++) {
             unsigned int index = 3*(j+i*screenWidth);
@@ -329,8 +337,8 @@ void rayTrace () {
             rayImage[index+2] = 255*(rayImage2[index+2] )/(max[2]);
         }
     }
-    std::cout << " tmin : " << tmin << std::endl;
-        std::cout << " tmax : " << tmax << std::endl;
+    std::cout << " tmin : " << max << std::endl;
+        std::cout << " tmax : " << min << std::endl;
 }
 
 void display () {  

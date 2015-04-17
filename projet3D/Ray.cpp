@@ -33,7 +33,7 @@ void Ray::rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f
     float t = dot(e1,r);
     if( t >= 0.0 ){
         //return  Vec3f(b0,b1,b2);
-        b = Vec3f(b0, b1, b2);
+        b = Vec3f(b2, b0, b1);
         d = t;
     }
     // return nullptr;
@@ -135,11 +135,12 @@ void Ray::raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyo
                                      triIntersect,Vec3f& b, float& t){
     //std::cout << "entrée dans le prog " << std::endl;
     
-    if (!tree.feuilleT.empty()) {
-        
+    if (tree.feuilleT.size()>0) {
+        //std::cout << tree.feuilleT.size() << std::endl;
         int l=0;
         while (l<tree.feuilleT.size()) {
-            Triangle tri =tree.feuilleT[l];
+            Triangle tri = Triangle(tree.feuilleT[l]);
+            
             Vec3f bTemp;
             float tTemp=INFINITY;
             // origin, direction, coord triangle , coordonnée barycentrique, distance caméra !
@@ -210,7 +211,7 @@ float Brdf_GGX(const Vec3f & p, const Vec3f & n,const Vec3f& light,const Vec3f& 
 }
 
 float attenuation(Vec3f v){
-    float ac=1,al=1e-3,aq=1e-7;
+    float ac=1,al=1e-3,aq=1e-5;
     float d=v.length();
     return 1/(ac+al*d+aq*d*d);
 }
@@ -220,7 +221,7 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
         return Vec3f(0,0,0);
     }
     else {
-        float light_power= 100;
+        float light_power= 2000;
         Vec3f p=Vec3f(0,0,0);
         Vec3f n=Vec3f(0,0,0);
         
@@ -237,21 +238,27 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
         Vec3f e1 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[2]],shapes[t.v[3]].mesh.positions[t.v[2]+1],shapes[t.v[3]].mesh.positions[t.v[2]+2]) - Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
         n = normalize(cross(e0,e1));
         
+        if (dot(n,lightPos-p)<=0) {
+            return Vec3f(0,0,0);
+        }
+        
         //Calcul de l'index pour materials
         int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
         
-        tinyobj::shape_t shape = (shapes[t.v[3]]);
+        //tinyobj::shape_t shape = (shapes[t.v[3]]);
         float LWi = attenuation(lightPos-p);
         float projection = dot(normalize(lightPos-p),normalize(n));
         
         float GGX = Brdf_GGX(p, n, lightPos,  origin);
+        //std::cout << "attenuation : "<< LWi << std::endl;
+        
         Vec3f diffu = Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
-        Vec3f spéculaire = Vec3f(GGX*materials[index].specular[0],GGX*materials[index].specular[1],GGX*materials[index].specular[2]);
-        Vec3f f = spéculaire + diffu;
+        Vec3f spéculaire = Vec3f(GGX*(float)materials[index].specular[0],GGX*(float)materials[index].specular[1],GGX*(float)materials[index].specular[2]);
+        Vec3f f = diffu ;
         
         //std::cout << projection << std::endl;
         
-        return LWi*projection*light_power*f;
+        return LWi*f;
     }
     
 };

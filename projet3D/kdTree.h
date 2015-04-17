@@ -39,10 +39,10 @@ public:
         v[1] = t.v[1];
         v[2] = t.v[2];
         v[3] = t.v[3];
-        v[3] = t.v[4];
+        v[4] = t.v[4];
         return (*this);
     }
-    unsigned int v[5];
+     unsigned int v[5];
 };
 
 class kdTree{
