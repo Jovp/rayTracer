@@ -15,7 +15,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "249"
             endingLineNumber = "249"
-            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, Vec3f lightPos)"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos,const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -47,7 +47,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "260"
             endingLineNumber = "260"
-            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, Vec3f lightPos)"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos,const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

@@ -235,14 +235,18 @@ bool isInShadow(const kdTree& tree, const std::vector<tinyobj::shape_t> & shapes
 }
 
 
-Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const kdTree& tree, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t, Vec3f lightPos){
+Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const kdTree& tree, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t, const Vec3f& lightPos,const unsigned int& profondeur,const unsigned int& profondeurMax){
+    
+    Vec3f radiance=Vec3f(0,0,0);
+    Vec3f p=Vec3f(0,0,0);
+    Vec3f n=Vec3f(0,0,0);
+    
     if (intersection==Vec3f(0,0,0)) {
-        return Vec3f(0,0,0);
+        radiance= Vec3f(0,0,0);
     }
     else {
         float light_power= 2000;
-        Vec3f p=Vec3f(0,0,0);
-        Vec3f n=Vec3f(0,0,0);
+        
         
         for (int i=0; i<3; i++) {
             //Interpolation de la position de l'intersection
@@ -252,45 +256,92 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
             
         }
         
+        
         //Ombre portées
         Triangle useless;
         Vec3f uselessBary;
         float uselessDist=INFINITY;
+        
+        //Calcul de la normale au triangle t
+        Vec3f e0 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]) - Vec3f(shapes[t.v[3]].mesh.positions[t.v[2]],shapes[t.v[3]].mesh.positions[t.v[2]+1],shapes[t.v[3]].mesh.positions[t.v[2]+2]);
+        Vec3f e1 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[1]],shapes[t.v[3]].mesh.positions[t.v[1]+1],shapes[t.v[3]].mesh.positions[t.v[1]+2]) - Vec3f(shapes[t.v[3]].mesh.positions[t.v[2]],shapes[t.v[3]].mesh.positions[t.v[2]+1],shapes[t.v[3]].mesh.positions[t.v[2]+2]);
+        n = normalize(cross(e0,e1));
+        
+        
+        
         if (isInShadow(tree, shapes, p, lightPos, useless, uselessBary, uselessDist)){
-            return Vec3f(0,0,0);
+            
+            
+            radiance= Vec3f(0,0,0);
         }
         
         else{
-            //Calcul de la normale au triangle t
-            Vec3f e0 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[1]],shapes[t.v[3]].mesh.positions[t.v[1]+1],shapes[t.v[3]].mesh.positions[t.v[1]+2]) - Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
-            Vec3f e1 = Vec3f(shapes[t.v[3]].mesh.positions[t.v[2]],shapes[t.v[3]].mesh.positions[t.v[2]+1],shapes[t.v[3]].mesh.positions[t.v[2]+2]) - Vec3f(shapes[t.v[3]].mesh.positions[t.v[0]],shapes[t.v[3]].mesh.positions[t.v[0]+1],shapes[t.v[3]].mesh.positions[t.v[0]+2]);
-            n = normalize(cross(e0,e1));
+            
             
             if (dot(n,lightPos-p)<=0) {
-                return Vec3f(0,0,0);
+                radiance= Vec3f(0,0,0);
+            }
+            else {
+                //Calcul de l'index pour materials
+                int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
+                
+                //tinyobj::shape_t shape = (shapes[t.v[3]]);
+                float LWi = attenuation(lightPos-p);
+                float projection = dot(normalize(lightPos-p),normalize(n));
+                
+                float GGX = Brdf_GGX(p, n, lightPos,  origin);
+                //std::cout << "attenuation : "<< LWi << std::endl;
+                
+                Vec3f diffu = Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
+                Vec3f spéculaire = Vec3f(GGX*(float)materials[index].specular[0],GGX*(float)materials[index].specular[1],GGX*(float)materials[index].specular[2]);
+                Vec3f f = diffu ;
+                
+                //std::cout << projection << std::endl;
+                
+                
+                
+                if (profondeur==profondeurMax) {
+                    radiance= LWi*projection*f*2;
+                }
+                else {
+                    radiance= LWi*f;
+                }
             }
             
-            //Calcul de l'index pour materials
-            int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
-            
-            //tinyobj::shape_t shape = (shapes[t.v[3]]);
-            float LWi = attenuation(lightPos-p);
-            float projection = dot(normalize(lightPos-p),normalize(n));
-            
-            float GGX = Brdf_GGX(p, n, lightPos,  origin);
-            //std::cout << "attenuation : "<< LWi << std::endl;
-            
-            Vec3f diffu = Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
-            Vec3f spéculaire = Vec3f(GGX*(float)materials[index].specular[0],GGX*(float)materials[index].specular[1],GGX*(float)materials[index].specular[2]);
-            Vec3f f = diffu ;
-            
-            //std::cout << projection << std::endl;
-            
-            return LWi*f;
         }
     }
     
+    if(profondeur>0){
+        // Nouveau chemin
+        Vec3f g(0,0,0);
+        //Path Tracing first generate a randon ray from p and n
+        Vec3f uselessPoint, uselessNormal;
+        Ray path=Ray(p,generateRandDir(n));
+        Triangle triIntersect(0,0,0,0,0);
+        Vec3f coordBar=Vec3f(0,0,0);
+        float t2=INFINITY;
+        path.raySceneIntersectionKdTree(tree, shapes, triIntersect, coordBar, t2);
+        
+        if (t2!=INFINITY){
+            
+            return radiance+path.evaluateResponse(shapes, tree, materials, coordBar, triIntersect, lightPos, profondeur-1,profondeurMax);
+        }
+        else {
+            return radiance;
+        }
+    }
+    
+    else{
+        return radiance;
+    }
+    
+    
 };
+
+
+
+
+
 
 
 

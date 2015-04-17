@@ -355,10 +355,26 @@ typedef Vec3<float> Vec3f;
 typedef Vec3<double> Vec3d;
 typedef Vec3<int> Vec3i;
 
+
+inline Vec3f generateRandDir(const Vec3f& n){
+    //calculate a basis
+    normalize(n);
+    Vec3f u1=normalize(cross(n, Vec3f(0.1,0.7,1.0)));
+    Vec3f u2=normalize(cross(n,u1));
     
+    float r1=float(rand())/RAND_MAX;
+    float r2=float(rand())/RAND_MAX;
+    float teta=acos(sqrt(r2))/2;
+    float phi=2*M_PI*r1;
+    //  /!\ ne pas oublier la Valeur absolue !
+    return normalize(n*cos(teta)+u1*sin(teta)*cos(phi)+u2*sin(teta)*sin(phi));
+    
+}
 // Some Emacs-Hints -- please don't remove:
 //
 //  Local Variables:
 //  mode:C++
 //  tab-width:4
 //  End:
+
+
