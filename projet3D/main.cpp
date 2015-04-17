@@ -23,7 +23,7 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 1024;
+static const unsigned int DEFAULT_SCREENWIDTH = 768;
 static const unsigned int DEFAULT_SCREENHEIGHT = 768;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
@@ -254,11 +254,11 @@ void displayRayImage () {
 void rayTrace () {
     
     tree=kdTree(shapes,TriangleListFromShapes(shapes));
-    glMatrixMode (GL_PROJECTION); // Set the projection matrix as current. All upcoming matrix manipulations will affect it.
+    /*glMatrixMode (GL_PROJECTION); // Set the projection matrix as current. All upcoming matrix manipulations will affect it.
     glLoadIdentity ();
     gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane); // Set the current projection matrix with the camera intrinsics
     glMatrixMode (GL_MODELVIEW); // Set the modelview matrix as current. All upcoming matrix manipulations will affect it.
-    glLoadIdentity ();
+    glLoadIdentity ();*/
     Vec3f eye = polarToCartesian (camEyePolar);
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
@@ -266,7 +266,7 @@ void rayTrace () {
     Vec3f pCentre = eye + normalize(camTarget - eye);
     float tmin=INFINITY;
     float tmax=0;
-    float fovx=fovAngle*(2*M_PI/360);
+    float fovx=(fovAngle/1.855)*(2*M_PI/360);
     float fovy=fovx*float(screenHeight)/float(screenWidth);
     // on prend un plan image a une distance 1
     Vec3f up = normalize( Vec3f(0,1,0)-dot(normalize(camTarget - eye),Vec3f(0,1,0))*normalize(camTarget - eye) );
@@ -283,6 +283,10 @@ void rayTrace () {
     memset (rayImage2, 0, l);
     float max[3] = {-INFINITY,-INFINITY,-INFINITY};
     float min[3] = {INFINITY,INFINITY,INFINITY};
+    
+    unsigned int nombreRayPix=2;
+    unsigned int nbRebond=3;
+    
     for (int i = 0; i < screenHeight; i++){
         if (i%(screenHeight/100)==0)
             std::cout << i/(screenHeight/100) << "%" << std::endl;
@@ -295,7 +299,7 @@ void rayTrace () {
             
             Vec3f radiance=Vec3f(0,0,0);
             
-            int nombreRayPix=32;
+            
             float rapport=(sqrt(nombreRayPix)-1)/sqrt(nombreRayPix);
             for (int k=0; k<nombreRayPix; k++) {
                 
@@ -326,7 +330,7 @@ void rayTrace () {
                 
                 //std::cout << tri[0] << std::endl;
                 Vec3f touchedPoint, touchedNormal;
-                radiance += myRay.evaluateResponse(shapes, tree, materials, coordBar, tri, lightPos, 2, 2);
+                radiance += myRay.evaluateResponse(shapes, tree, materials, coordBar, tri, lightPos, nbRebond, nbRebond);
                 //std::cout << t << std::endl;
                 
                 
