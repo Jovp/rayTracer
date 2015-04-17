@@ -23,4 +23,28 @@ build/Debug/projet3D
 
 *.plist
 
+<<<<<<< HEAD
 build/Debug/
+=======
+*.d
+
+*.d
+
+*.dia
+
+*.o
+
+*.LinkFileList
+
+*.xcscheme
+
+*.xcbkptlist
+
+*.xccheckout
+
+*.pbxproj
+
+*.hmap
+
+*.hmap
+>>>>>>> origin/Paola2
