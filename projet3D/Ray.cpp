@@ -325,7 +325,7 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
             if (t2!=INFINITY){
                 
                 // ici sur
-                Vec3f colorFromRay=normalize(path.evaluateResponsePath(shapes, tree, materials, coordBar, triIntersect, lightPos, profondeur-1,profondeurMax));
+                Vec3f colorFromRay=(path.evaluateResponsePath(shapes, tree, materials, coordBar, triIntersect, lightPos, profondeur-1,profondeurMax));
                 int indexFromRay = shapes[t.v[3]].mesh.material_ids[t.v[4]];
                 Vec3f diffuFromRay=Vec3f(Brdf_Lambert(materials[indexFromRay].diffuse[0]),Brdf_Lambert(materials[indexFromRay].diffuse[1]),Brdf_Lambert(materials[indexFromRay].diffuse[2]));
                 Vec3f posPointHitByRay=Vec3f(0,0,0);
