@@ -19,7 +19,7 @@ class BBox{
         zL=0;
         coin=Vec3f(0,0,0);
     };
-    inline BBox(float _xL,float _yL,float _zL,Vec3f _coin){
+    inline BBox(const float& _xL,const float& _yL,const float& _zL,const Vec3f& _coin){
         xL=_xL;
         yL=_yL;
         zL=_zL;

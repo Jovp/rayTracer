@@ -23,8 +23,8 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 768;
-static const unsigned int DEFAULT_SCREENHEIGHT = 768;
+static const unsigned int DEFAULT_SCREENWIDTH = 512;
+static const unsigned int DEFAULT_SCREENHEIGHT = 512;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
@@ -284,8 +284,9 @@ void rayTrace () {
     float max[3] = {-INFINITY,-INFINITY,-INFINITY};
     float min[3] = {INFINITY,INFINITY,INFINITY};
     
-    unsigned int nombreRayPix=2;
-    unsigned int nbRebond=3;
+    unsigned int nombreRayPixAA=4;
+    float rapport=(sqrt(nombreRayPixAA)-1)/sqrt(nombreRayPixAA);
+    unsigned int nbRebond=5;
     
     for (int i = 0; i < screenHeight; i++){
         if (i%(screenHeight/100)==0)
@@ -300,8 +301,8 @@ void rayTrace () {
             Vec3f radiance=Vec3f(0,0,0);
             
             
-            float rapport=(sqrt(nombreRayPix)-1)/sqrt(nombreRayPix);
-            for (int k=0; k<nombreRayPix; k++) {
+            
+            for (int k=0; k<nombreRayPixAA; k++) {
                 
                 // taille pixel : 2*tan(fovy))/int(screenHeight)
                 float dx=(float(rand())/RAND_MAX)*2*(tan(fovx)/int(screenWidth))-(tan(fovx)/int(screenWidth));
@@ -329,13 +330,12 @@ void rayTrace () {
                 // Test if there is any intersection
                 
                 //std::cout << tri[0] << std::endl;
-                Vec3f touchedPoint, touchedNormal;
                 radiance += myRay.evaluateResponse(shapes, tree, materials, coordBar, tri, lightPos, nbRebond, nbRebond);
                 //std::cout << t << std::endl;
                 
                 
                 }
-            radiance/=nombreRayPix;
+            //radiance/=nombreRayPix;
             
             if (tmin!=INFINITY ) {
                 for (int n=0; n<3; n++) {

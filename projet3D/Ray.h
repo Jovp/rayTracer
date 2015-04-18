@@ -31,6 +31,7 @@ public:
     void raySceneIntersectionKdTree(const kdTree& tree, const std::vector<tinyobj::shape_t> & shapes,Triangle& triIntersect,Vec3f& b, float& t);
     Vec3f raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes,  Triangle & t);
     Vec3f evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const kdTree& tree, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t, const Vec3f& lightPos,const unsigned int& profondeur,const unsigned int& profondeurMax);
+    Vec3f evaluateResponsePath(const std::vector<tinyobj::shape_t> & shapes, const kdTree& tree, const std::vector<tinyobj::material_t> & materials, const Vec3f & intersection, const Triangle & t, const Vec3f& lightPos, const unsigned int& profondeur,const unsigned int& profondeurMax);
 
     
 

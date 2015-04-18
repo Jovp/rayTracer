@@ -10,12 +10,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projet3D/Ray.cpp"
-            timestampString = "450966145.609605"
+            timestampString = "451002518.828288"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "249"
-            endingLineNumber = "249"
-            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos,const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
+            startingLineNumber = "253"
+            endingLineNumber = "253"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos, const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,12 +42,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projet3D/Ray.cpp"
-            timestampString = "450966176.007373"
+            timestampString = "451002518.828288"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "260"
-            endingLineNumber = "260"
-            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos,const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
+            startingLineNumber = "263"
+            endingLineNumber = "263"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos, const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -65,6 +65,54 @@
             endingLineNumber = "227"
             landmarkName = "isInShadow(const kdTree&amp; tree, const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes,const Vec3f&amp; p,const Vec3f&amp; lightPos,Triangle&amp; triIntersect,Vec3f&amp; b, float&amp; t)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projet3D/Ray.cpp"
+            timestampString = "451004847.062128"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "327"
+            endingLineNumber = "327"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos, const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projet3D/Ray.cpp"
+            timestampString = "451002297.913973"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "314"
+            endingLineNumber = "314"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos, const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projet3D/Ray.cpp"
+            timestampString = "451004818.66262"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "297"
+            endingLineNumber = "297"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos, const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
+            landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
