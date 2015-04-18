@@ -31,6 +31,7 @@ static GLint window;
 static unsigned int screenWidth;
 static unsigned int screenHeight;
 static bool rayDisplayMode = false;
+static bool blurDisplayMode = false;
 
 // Camera parameters
 static float fovAngle;
@@ -60,6 +61,8 @@ static kdTree tree;
 
 // Raytraced image
 static unsigned char * rayImage = NULL;
+static float * t_buffer = NULL;
+static unsigned char * blurImage;
 
 void printUsage () {
     std::cerr << std::endl // send a line break to the standard error output
@@ -250,6 +253,13 @@ void displayRayImage () {
     glEnable (GL_DEPTH_TEST);
 }
 
+void displayBlurImage () {
+    glDisable (GL_DEPTH_TEST);
+    glDrawPixels (screenWidth, screenHeight, GL_RGB, GL_UNSIGNED_BYTE, static_cast<void*>(blurImage));
+    glutSwapBuffers ();
+    glEnable (GL_DEPTH_TEST);
+}
+
 // MAIN FUNCTION TO CHANGE !
 void rayTrace () {
     
@@ -280,13 +290,15 @@ void rayTrace () {
         delete [] rayImage2;
     unsigned int l = 3*screenWidth*screenHeight;
     rayImage2 = new float [l];
+    t_buffer = new float[screenWidth*screenHeight];
+    
     memset (rayImage2, 0, l);
     float max[3] = {-INFINITY,-INFINITY,-INFINITY};
     float min[3] = {INFINITY,INFINITY,INFINITY};
     
-    unsigned int nombreRayPixAA=4;
+    unsigned int nombreRayPixAA=2;
     float rapport=(sqrt(nombreRayPixAA)-1)/sqrt(nombreRayPixAA);
-    unsigned int nbRebond=5;
+    unsigned int nbRebond=2;
     
     for (int i = 0; i < screenHeight; i++){
         if (i%(screenHeight/100)==0)
@@ -323,7 +335,7 @@ void rayTrace () {
                 Vec3f coordBar(0,0,0);
                 float t=INFINITY;
                 myRay.raySceneIntersectionKdTree(tree, shapes, tri, coordBar, t);
-                
+                t_buffer[i*screenHeight + j] = t;
                 if (t< tmin){
                     tmin=t;
                 }
@@ -368,11 +380,88 @@ void rayTrace () {
     }
     std::cout << " tmin : " << max << std::endl;
     std::cout << " tmax : " << min << std::endl;
+    
+    //Liberer la memoire delete
+    delete rayImage2;
 }
 
+void compute_kernel(const int& W, float kernel[][W]){
+    float sigma = 1;
+    float mean = W/2;
+    float sum = 0.0; // For accumulating the kernel values
+    for (int x = 0; x < W; ++x){
+        for (int y = 0; y < W; ++y) {
+            kernel[x][y] = exp( -0.5 * (pow((x-mean)/sigma, 2.0) + pow((y-mean)/sigma,2.0)) )
+            / (2 * M_PI * sigma * sigma);
+            // Accumulate the kernel values
+            sum += kernel[x][y];
+        }
+    }
+    // Normalize the kernel
+    for (int x = 0; x < W; ++x){
+        for (int y = 0; y < W; ++y){
+            kernel[x][y] /= sum;
+        }
+    }
+}
+
+void blur(){
+
+    
+    blurImage = new unsigned char[3*screenWidth*screenHeight];
+    float ouverture = 20;
+    float focale = 20;
+    float planMiseAuPoint = 1000;
+    
+    for (int i = 7; i < screenHeight-7; i++){
+        for ( int  j = 7; j < screenWidth-7; j++) {
+            unsigned int index = 3*(j+i*screenWidth);
+            float radius = abs( ouverture*( focale*(planMiseAuPoint - t_buffer[i*screenHeight+j]) )/(t_buffer[i*screenHeight+j]*( planMiseAuPoint-focale)) );
+           
+            int r = (int) round(radius)%2==0 ? round(radius)+1 : round(radius);
+            int W = r<5 ? 5 : r;
+            
+            
+            float kernel[W][W];
+            float sigma = 2;
+            float mean = W/2;
+            float sum = 0.0; // For accumulating the kernel values
+            for (int x = 0; x < W; ++x){
+                for (int y = 0; y < W; ++y) {
+                    kernel[x][y] = exp( -0.5 * (pow((x-mean)/sigma, 2.0) + pow((y-mean)/sigma,2.0)) )
+                    / (2 * M_PI * sigma * sigma);
+                    // Accumulate the kernel values
+                    sum += kernel[x][y];
+                }
+            }
+            // Normalize the kernel
+            for (int x = 0; x < W; ++x){
+                for (int y = 0; y < W; ++y){
+                    kernel[x][y] /= sum;
+                }
+            }
+
+            
+            for (int x = 0; x < W; ++x){
+                for (int y = 0; y < W; ++y){
+                    blurImage[index]   += kernel[x][y]*rayImage[3*(j-x+(i-y)*screenWidth)];
+                    blurImage[index+1] += kernel[x][y]*rayImage[3*(j-x+(i-y)*screenWidth)+1];
+                    blurImage[index+2] += kernel[x][y]*rayImage[3*(j-x+(i-y)*screenWidth)+2];
+                }
+            }
+        }
+     }
+
+}
+
+
 void display () {
-    if (rayDisplayMode)
+    if (rayDisplayMode){
+        if (blurDisplayMode) {
+            displayBlurImage ();
+        }else
         displayRayImage ();
+    }
     else
         rasterize ();
 }
@@ -393,6 +482,15 @@ void keyboard (unsigned char keyPressed, int x, int y) {
     switch (keyPressed) {
         case ' ':
             rayDisplayMode = !rayDisplayMode;
+            glutPostRedisplay ();
+            break;
+        case 'b':
+            blur();
+            glutPostRedisplay ();
+            cout << "blur ok "<<endl;
+            break;
+        case 'n':
+            blurDisplayMode = !blurDisplayMode;
             glutPostRedisplay ();
             break;
         case 'r':
