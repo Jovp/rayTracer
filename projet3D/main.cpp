@@ -23,9 +23,9 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 512;
-static const unsigned int DEFAULT_SCREENHEIGHT = 512;
-static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_box/cornell_box.obj";
+static const unsigned int DEFAULT_SCREENWIDTH = 768;
+static const unsigned int DEFAULT_SCREENHEIGHT = 768;
+static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_boxMiroir/cornell_box.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
 static unsigned int screenWidth;
@@ -56,6 +56,10 @@ static float baseCamTheta;
 
 // Tree
 static kdTree tree;
+
+//Quality
+const unsigned int nombreRayPixAA=4;
+const unsigned int nbRebond=3;
 
 
 // Raytraced image
@@ -172,7 +176,8 @@ void initLighting () {
     glLightfv (GL_LIGHT0, GL_DIFFUSE, color);
     glLightfv (GL_LIGHT0, GL_SPECULAR, color);
     glEnable (GL_LIGHT0);
-    lightPos=Vec3f(278,540,279.5);
+    //lightPos=Vec3f(278,540,279.5); // Cornell cube
+    lightPos=Vec3f(0,1.55,0); // Cornel sphère
 }
 
 void init (const string & filename) {
@@ -284,9 +289,8 @@ void rayTrace () {
     float max[3] = {-INFINITY,-INFINITY,-INFINITY};
     float min[3] = {INFINITY,INFINITY,INFINITY};
     
-    unsigned int nombreRayPixAA=4;
+    
     float rapport=(sqrt(nombreRayPixAA)-1)/sqrt(nombreRayPixAA);
-    unsigned int nbRebond=5;
     
     for (int i = 0; i < screenHeight; i++){
         if (i%(screenHeight/100)==0)
@@ -322,16 +326,18 @@ void rayTrace () {
                 Triangle tri(0,0,0,0,0);
                 Vec3f coordBar(0,0,0);
                 float t=INFINITY;
-                myRay.raySceneIntersectionKdTree(tree, shapes, tri, coordBar, t);
+                myRay.raySceneIntersectionKdTree(tree, shapes, tri, coordBar, t, false);
                 
                 if (t< tmin){
                     tmin=t;
                 }
                 // Test if there is any intersection
+                if (t<INFINITY) {
+                    //std::cout << tri[0] << std::endl;
+                    radiance += myRay.evaluateResponse(shapes, tree, materials, coordBar, tri, lightPos, nbRebond, nbRebond);
+                    //std::cout << t << std::endl;
+                }
                 
-                //std::cout << tri[0] << std::endl;
-                radiance += myRay.evaluateResponse(shapes, tree, materials, coordBar, tri, lightPos, nbRebond, nbRebond);
-                //std::cout << t << std::endl;
                 
                 
                 }
@@ -345,9 +351,9 @@ void rayTrace () {
                         min[n] = radiance[n];
                 }
                 
-                rayImage2[index] = radiance[0];
-                rayImage2[index+1] = radiance[1];
-                rayImage2[index+2] = radiance[2];
+                rayImage[index] = radiance[0];
+                rayImage[index+1] = radiance[1];
+                rayImage[index+2] = radiance[2];
             
             }
             
@@ -355,7 +361,7 @@ void rayTrace () {
     }
     
     
-    
+    /*
     for (int i = 0; i < screenHeight; i++){
         for ( int  j = 0; j < screenWidth; j++) {
             unsigned int index = 3*(j+i*screenWidth);
@@ -365,7 +371,7 @@ void rayTrace () {
             rayImage[index+1] = 255*(rayImage2[index+1] )/(max[1]);
             rayImage[index+2] = 255*(rayImage2[index+2] )/(max[2]);
         }
-    }
+    }*/
     std::cout << " tmin : " << max << std::endl;
     std::cout << " tmax : " << min << std::endl;
 }

@@ -41,6 +41,9 @@ BBox computeBoundingBox(const std::vector<tinyobj::shape_t>& shapes,const std::v
     float xdiff=xmax-xmin;
     float ydiff=ymax-ymin;
     float zdiff=zmax-zmin;
+    
+    if (xdiff<100 || ydiff<100 || zdiff<100 )
+        std::cout << "max : 100" << std::endl;
     /*std::cout << "x min : " << xmin << std::endl;
     std::cout << "x max : " << xmax << std::endl;
     std::cout << "y min : " << ymin << std::endl;
@@ -157,10 +160,16 @@ Vec3f findMedianSampleLong(const std::vector<tinyobj::shape_t>& shapes,const std
         
     }
     
+    if (TriangleList.size()==1) {
+        return Vec3f(xCentre[xCentre.size()/2],yCentre[yCentre.size()/2],zCentre[zCentre.size()/2]);
+    }
+    else {
     std::sort(xCentre.begin(),xCentre.end());
     std::sort(yCentre.begin(),yCentre.end());
     std::sort(zCentre.begin(),zCentre.end());
-    return Vec3f(xCentre[xCentre.size()/2],yCentre[yCentre.size()/2],zCentre[zCentre.size()/2]);
+
+    return Vec3f((xCentre[xCentre.size()/2]+xCentre[(xCentre.size()/2)+1])/2,(yCentre[xCentre.size()/2]+yCentre[(xCentre.size()/2)+1])/2,(zCentre[xCentre.size()/2]+zCentre[(xCentre.size()/2)+1])/2);
+    }
     
 }
 
@@ -237,7 +246,7 @@ kdTree::kdTree(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Tri
         
         
     }
-    std::cout << "boite test  2 : " <<(this->boite.xL) << std::endl;
+    //std::cout << "boite test  2 : " <<(this->boite.xL) << std::endl;
     
 }
 
