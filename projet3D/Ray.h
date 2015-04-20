@@ -26,6 +26,8 @@ public:
     
     void rayTriangleIntersection (const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d);
     void rayTriangleIntersectionInverted (const Vec3f & p0,const Vec3f & p1,const Vec3f & p2, Vec3f & b, float & d);
+    
+    float rayCircleIntersection(const Vec3f& circleCenter,const Vec3f& circleNormal,const float& circleRadius);
 
     void raySceneIntersection(const std::vector<tinyobj::shape_t> & shapes, Triangle & t, float& d, Vec3f& intersection);
     bool rayBBoxIntersection(const BBox& box,const float& t0,const float& t1);

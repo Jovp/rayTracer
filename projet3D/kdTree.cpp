@@ -219,7 +219,7 @@ std::vector<Triangle> TriangleListFromShapes(const std::vector<tinyobj::shape_t>
 
 kdTree::kdTree(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Triangle>& TriangleList){
     
-    if (TriangleList.size()<=1) {
+    if (TriangleList.size()<=3) {
         feuilleT=TriangleList;
     }
     else {

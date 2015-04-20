@@ -364,10 +364,10 @@ inline Vec3f generateRandDir(const Vec3f& n){
     
     float r1=float(rand())/RAND_MAX;
     float r2=float(rand())/RAND_MAX;
-    float teta=acos(sqrt(r2))/2;
+    float teta=acosf(sqrtf(r2))/2;
     float phi=2*M_PI*r1;
     //  /!\ ne pas oublier la Valeur absolue !
-    return normalize(n*cos(teta)+u1*sin(teta)*cos(phi)+u2*sin(teta)*sin(phi));
+    return normalize(n*cosf(teta)+u1*sinf(teta)*cosf(phi)+u2*sinf(teta)*sinf(phi));
     
 }
 
@@ -375,7 +375,7 @@ inline Vec3f generateRandCircle(){
     float t = 2*M_PI*float(rand())/RAND_MAX;
     float u = float(rand())/RAND_MAX+float(rand())/RAND_MAX;
     float r = u>1 ? 2-u : u;
-    return Vec3f(r*cos(t), r*sin(t), 0);
+    return Vec3f(r*cosf(t), r*sinf(t), 0);
 }
 // Some Emacs-Hints -- please don't remove:
 //

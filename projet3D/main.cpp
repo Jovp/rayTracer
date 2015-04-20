@@ -19,19 +19,21 @@
 #include "tiny_obj_loader.h"
 #include "kdTree.h"
 #include "Ray.h"
+#include <thread>
 
 using namespace std;
 
 // App parameters
 static const unsigned int DEFAULT_SCREENWIDTH = 768;
 static const unsigned int DEFAULT_SCREENHEIGHT = 768;
-static const char * DEFAULT_SCENE_FILENAME = "scenes/cornell_boxMiroir/cornell_box.obj";
+static const char * DEFAULT_SCENE_FILENAME = "scenes/All_cornell_box/CornellBox-Sphere.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
 static unsigned int screenWidth;
 static unsigned int screenHeight;
 static bool rayDisplayMode = false;
-
+static bool interactifMode =false;
+void control();
 // Camera parameters
 static float fovAngle;
 static float aspectRatio;
@@ -58,12 +60,17 @@ static float baseCamTheta;
 static kdTree tree;
 
 //Quality
-const unsigned int nombreRayPixAA=4;
+const unsigned int nombreRayPixAA=8;
 const unsigned int nbRebond=3;
+
+// optimisation
+const unsigned int nbBloc=32;
 
 
 // Raytraced image
 static unsigned char * rayImage = NULL;
+static float * rayImageNotNormal = NULL;
+static int * rayImageNumber = NULL;
 
 void printUsage () {
     std::cerr << std::endl // send a line break to the standard error output
@@ -177,7 +184,8 @@ void initLighting () {
     glLightfv (GL_LIGHT0, GL_SPECULAR, color);
     glEnable (GL_LIGHT0);
     //lightPos=Vec3f(278,540,279.5); // Cornell cube
-    lightPos=Vec3f(0,1.55,0); // Cornel sphère
+    lightPos=Vec3f(0,1.57,0); // Cornel sphère
+    //lightPos=Vec3f(10,5,0); // mitsuba
 }
 
 void init (const string & filename) {
@@ -217,9 +225,17 @@ void reshape (int w, int h) {
     setupCamera ();
     if (rayImage != NULL)
         delete [] rayImage;
+    if (rayImageNotNormal != NULL)
+        delete [] rayImageNotNormal;
+    if (rayImageNumber != NULL)
+        delete [] rayImageNumber;
     unsigned int l = 3*screenWidth*screenHeight;
     rayImage = new unsigned char [l];
+    rayImageNotNormal= new float [l];
+    rayImageNumber= new int [l];
     memset (rayImage, 0, l);
+    memset(rayImageNumber,0,l);
+    memset(rayImageNotNormal,0,l);
 }
 
 void rasterize () {
@@ -255,15 +271,8 @@ void displayRayImage () {
     glEnable (GL_DEPTH_TEST);
 }
 
-// MAIN FUNCTION TO CHANGE !
-void rayTrace () {
-    
-    tree=kdTree(shapes,TriangleListFromShapes(shapes));
-    /*glMatrixMode (GL_PROJECTION); // Set the projection matrix as current. All upcoming matrix manipulations will affect it.
-    glLoadIdentity ();
-    gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane); // Set the current projection matrix with the camera intrinsics
-    glMatrixMode (GL_MODELVIEW); // Set the modelview matrix as current. All upcoming matrix manipulations will affect it.
-    glLoadIdentity ();*/
+
+float* rayTraceThreaded(const int& numThreadx,const int& numThready, float rayImage2[], float max[]) {
     Vec3f eye = polarToCartesian (camEyePolar);
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
@@ -275,9 +284,98 @@ void rayTrace () {
     float fovy=fovx*float(screenHeight)/float(screenWidth);
     // on prend un plan image a une distance 1
     Vec3f up = normalize( Vec3f(0,1,0)-dot(normalize(camTarget - eye),Vec3f(0,1,0))*normalize(camTarget - eye) );
-    std::cout << "direction regard : " << normalize(camTarget - eye) << std::endl;
-    std::cout << "taille up : " << up.length() << std::endl;
-    std::cout << "produit scalaire : " << dot(normalize(camTarget - eye),up) << std::endl;
+    //std::cout << "direction regard : " << normalize(camTarget - eye) << std::endl;
+    //std::cout << "taille up : " << up.length() << std::endl;
+    //std::cout << "produit scalaire : " << dot(normalize(camTarget - eye),up) << std::endl;
+    
+    // Raytraced image intermediaire en float
+    
+    
+    float min[3] = {INFINITY,INFINITY,INFINITY};
+    
+    
+    float rapport=(sqrt(nombreRayPixAA)-1)/sqrt(nombreRayPixAA);
+    
+    for (int bI=0; bI<nbBloc/2; bI++)
+        for (int bJ=0; bJ<nbBloc/2; bJ++) {
+            std::cout << "thread " << numThreadx << numThready << " : "<< floor((100.f/(nbBloc*nbBloc/4))*(bI*(nbBloc/2)+bJ)) << "%" << std::endl;
+            for (int i = (2*bI+numThreadx)*(screenHeight/nbBloc); i < (2*bI+1+numThreadx)*(screenHeight/nbBloc); i++){
+                float y = (float((2*i-int(screenHeight)))*tan(fovy))/int(screenHeight);
+                
+                for ( int  j = (2*bJ+numThready)*(screenWidth/nbBloc); j < (2*bJ+1+numThready)*screenWidth/nbBloc; j++) {
+                    unsigned int index = 3*(j+i*screenWidth);
+                    rayImage[index] = rayImage[index+1] = rayImage[index+2] = 0;
+                    float x = -(float((2*j-int(screenWidth)))*tan(fovx))/int(screenWidth);
+                    
+                    Vec3f radiance=Vec3f(0,0,0);
+                    
+                    
+                    
+                    for (int k=0; k<nombreRayPixAA; k++) {
+                        
+                        // taille pixel : 2*tan(fovy))/int(screenHeight)
+                        float dx=(float(rand())/RAND_MAX)*2*(tan(fovx)/int(screenWidth))-(tan(fovx)/int(screenWidth));
+                        float dy=(float(rand())/RAND_MAX)*2*(tan(fovy)/int(screenHeight))-(tan(fovy)/int(screenHeight));
+                        
+                        //std::cout << "x : " << x << "   dx : " << dx << std::endl;
+                        //std::cout << "y : " << y << "   dx : " << dy << std::endl;
+                        
+                        
+                        
+                        
+                        Vec3f posPix = pCentre + (x+dx*rapport)*normalize(cross(up, normalize(camTarget - eye))) + (y+dy*rapport)*up;
+                        Vec3f direction = normalize(posPix - eye);
+                        //std::cout << x << " " << y << std::endl;
+                        Ray myRay = Ray(eye, direction);
+                        //Vec3f intersection = myRay.raySceneIntersection(shapes, t);
+                        Triangle tri(0,0,0,0,0);
+                        Vec3f coordBar(0,0,0);
+                        float t=INFINITY;
+                        myRay.raySceneIntersectionKdTree(tree, shapes, tri, coordBar, t, false);
+                        
+                        if (t< tmin){
+                            tmin=t;
+                        }
+                        // Test if there is any intersection
+                        if (t<INFINITY) {
+                            //std::cout << tri[0] << std::endl;
+                            radiance += myRay.evaluateResponse(shapes, tree, materials, coordBar, tri, lightPos, nbRebond, nbRebond);
+                            //std::cout << t << std::endl;
+                        }
+                        
+                        
+                        
+                    }
+                    radiance/=nombreRayPixAA;
+                    
+                    for (int n=0; n<3; n++) {
+                        if (radiance[n]>max[n])
+                            max[n] = radiance[n];
+                    }
+                    
+                    rayImage2[index] = radiance[0];
+                    rayImage2[index+1] = radiance[1];
+                    rayImage2[index+2] = radiance[2];
+                    
+                    
+                }
+            }
+        }
+    return max;
+    
+    
+}
+
+
+// MAIN FUNCTION TO CHANGE !
+void rayTrace () {
+    
+    tree=kdTree(shapes,TriangleListFromShapes(shapes));
+    /*glMatrixMode (GL_PROJECTION); // Set the projection matrix as current. All upcoming matrix manipulations will affect it.
+     glLoadIdentity ();
+     gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane); // Set the current projection matrix with the camera intrinsics
+     glMatrixMode (GL_MODELVIEW); // Set the modelview matrix as current. All upcoming matrix manipulations will affect it.
+     glLoadIdentity ();*/
     
     // Raytraced image intermediaire en float
     float * rayImage2 = NULL;
@@ -286,98 +384,194 @@ void rayTrace () {
     unsigned int l = 3*screenWidth*screenHeight;
     rayImage2 = new float [l];
     memset (rayImage2, 0, l);
-    float max[3] = {-INFINITY,-INFINITY,-INFINITY};
-    float min[3] = {INFINITY,INFINITY,INFINITY};
+    float max00[3] = {-INFINITY,-INFINITY,-INFINITY};
+    float max01[3] = {-INFINITY,-INFINITY,-INFINITY};
+    float max10[3] = {-INFINITY,-INFINITY,-INFINITY};
+    float max11[3] = {-INFINITY,-INFINITY,-INFINITY};
+    
+    std::thread th00(rayTraceThreaded,0,0,rayImage2,max00);
+    std::thread th01(rayTraceThreaded,0,1,rayImage2,max01);
+    std::thread th10(rayTraceThreaded,1,0,rayImage2,max10);
+    std::thread th11(rayTraceThreaded,1,1,rayImage2,max11);
+    
+    th00.join();
+    th01.join();
+    th10.join();
+    th11.join();
+    
+    float max=0;
+    for (int m=0; m<3; m++) {
+        if (max00[m]>max) {
+            max=max00[m];
+        }
+        if (max10[m]>max) {
+            max=max10[m];
+        }
+        if (max01[m]>max) {
+            max=max01[m];
+        }
+        if (max11[m]>max) {
+            max=max11[m];
+        }
+    }
+    
+    unsigned int numberIndex = 3*screenHeight*screenWidth;
+    for (int i = 0; i < numberIndex; i++){
+        rayImage[i]= floor((255*rayImage2[i])/max);
+        if (floor((255*rayImage2[i])/max)>= 254) {
+            std::cout << floor((255*rayImage2[i])/max) << std::endl;
+        }
+    }
+    std::cout << "FINI" << std::endl;
+    std::cout << "MAx : " << max << std::endl;
+}
+
+void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const float& rapport, const float& fovx, const float& fovy){
     
     
-    float rapport=(sqrt(nombreRayPixAA)-1)/sqrt(nombreRayPixAA);
-    
-    for (int i = 0; i < screenHeight; i++){
-        if (i%(screenHeight/100)==0)
-            std::cout << i/(screenHeight/100) << "%" << std::endl;
-        float y = (float((2*i-int(screenHeight)))*tan(fovy))/int(screenHeight);
+    for (int throwNumb=0; throwNumb<512; throwNumb++) {
+        //chaque ray :
+        float xR=screenWidth*float(rand())/RAND_MAX;
+        float yR=screenHeight*float(rand())/RAND_MAX;
         
-        for ( int  j = 0; j < screenWidth; j++) {
-            unsigned int index = 3*(j+i*screenWidth);
-            rayImage[index] = rayImage[index+1] = rayImage[index+2] = 0;
-            float x = -(float((2*j-int(screenWidth)))*tan(fovx))/int(screenWidth);
-            
-            Vec3f radiance=Vec3f(0,0,0);
-            
-            
-            
-            for (int k=0; k<nombreRayPixAA; k++) {
-                
-                // taille pixel : 2*tan(fovy))/int(screenHeight)
-                float dx=(float(rand())/RAND_MAX)*2*(tan(fovx)/int(screenWidth))-(tan(fovx)/int(screenWidth));
-                float dy=(float(rand())/RAND_MAX)*2*(tan(fovy)/int(screenHeight))-(tan(fovy)/int(screenHeight));
-                
-                //std::cout << "x : " << x << "   dx : " << dx << std::endl;
-                //std::cout << "y : " << y << "   dx : " << dy << std::endl;
-                
-                
-            
-                
-                Vec3f posPix = pCentre + (x+dx*rapport)*normalize(cross(up, normalize(camTarget - eye))) + (y+dy*rapport)*up;
-                Vec3f direction = normalize(posPix - eye);
-                //std::cout << x << " " << y << std::endl;
-                Ray myRay = Ray(eye, direction);
-                //Vec3f intersection = myRay.raySceneIntersection(shapes, t);
-                Triangle tri(0,0,0,0,0);
-                Vec3f coordBar(0,0,0);
-                float t=INFINITY;
-                myRay.raySceneIntersectionKdTree(tree, shapes, tri, coordBar, t, false);
-                
-                if (t< tmin){
-                    tmin=t;
-                }
-                // Test if there is any intersection
-                if (t<INFINITY) {
-                    //std::cout << tri[0] << std::endl;
-                    radiance += myRay.evaluateResponse(shapes, tree, materials, coordBar, tri, lightPos, nbRebond, nbRebond);
-                    //std::cout << t << std::endl;
-                }
-                
-                
-                
-                }
-            //radiance/=nombreRayPix;
-            
-            if (tmin!=INFINITY ) {
-                for (int n=0; n<3; n++) {
-                    if (radiance[n]>max[n])
-                        max[n] = radiance[n];
-                    if (radiance[n]<min[n])
-                        min[n] = radiance[n];
-                }
-                
-                rayImage[index] = radiance[0];
-                rayImage[index+1] = radiance[1];
-                rayImage[index+2] = radiance[2];
-            
-            }
+        int xPix= floor(xR);
+        int yPix= floor(yR);
+        unsigned int index = 3*(xPix+yPix*screenWidth);
+        rayImageNumber[index]++;
+        rayImageNumber[index+1]++;
+        rayImageNumber[index+2]++;
+        
+        float y = (float((2*yPix-int(screenHeight)))*tan(fovy))/int(screenHeight);
+        
+        float x = -(float((2*xPix-int(screenWidth)))*tan(fovx))/int(screenWidth);
+        
+        Vec3f posPix = pCentre + x*normalize(cross(up, normalize(camTarget - eye))) + y*up;
+        Vec3f direction = normalize(posPix - eye);
+        
+        float tmin=INFINITY;
+        
+        float min[3] = {INFINITY,INFINITY,INFINITY};
+        
+        
+        
+        Vec3f radiance=Vec3f(0,0,0);
+        
+        //std::cout << x << " " << y << std::endl;
+        Ray myRay = Ray(eye, direction);
+        //Vec3f intersection = myRay.raySceneIntersection(shapes, t);
+        Triangle tri(0,0,0,0,0);
+        Vec3f coordBar(0,0,0);
+        float t=INFINITY;
+        myRay.raySceneIntersectionKdTree(tree, shapes, tri, coordBar, t, false);
+        
+        if (t< tmin){
+            tmin=t;
+        }
+        // Test if there is any intersection
+        if (t<INFINITY) {
+            //std::cout << tri[0] << std::endl;
+            radiance= myRay.evaluateResponse(shapes, tree, materials, coordBar, tri, lightPos, nbRebond, nbRebond);
+            //std::cout << t << std::endl;
+            rayImageNotNormal[index]+=radiance[0];
+            rayImageNotNormal[index+1]+=radiance[1];
+            rayImageNotNormal[index+2]+=radiance[2];
             
         }
     }
     
-    
-    /*
-    for (int i = 0; i < screenHeight; i++){
-        for ( int  j = 0; j < screenWidth; j++) {
-            unsigned int index = 3*(j+i*screenWidth);
-            rayImage[index] = rayImage[index+1] = rayImage[index+2] = 0;
-            
-            rayImage[index]   = 255*(rayImage2[index]   )/(max[0]);
-            rayImage[index+1] = 255*(rayImage2[index+1] )/(max[1]);
-            rayImage[index+2] = 255*(rayImage2[index+2] )/(max[2]);
-        }
-    }*/
-    std::cout << " tmin : " << max << std::endl;
-    std::cout << " tmax : " << min << std::endl;
 }
 
+void mouse (int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON) {
+        if (state == GLUT_DOWN) {
+            mouseLeftButtonClicked = true;
+            clickedX = x;
+            clickedY = y;
+            baseCamPhi = camEyePolar[1];
+            baseCamTheta = camEyePolar[2];
+        } else {
+            mouseLeftButtonClicked = false;
+        }
+    }
+}
+
+void rayTraceInteractif(){
+    
+    std::thread thControl(control);
+    unsigned int l = 3*screenWidth*screenHeight;
+    memset(rayImage, 0, l);
+    
+    Vec3f eye = polarToCartesian (camEyePolar);
+    swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
+    eye += camTarget;
+    
+    Vec3f pCentre = eye + normalize(camTarget - eye);
+    
+    float fovx=(fovAngle/1.855)*(2*M_PI/360);
+    float fovy=fovx*float(screenHeight)/float(screenWidth);
+    float rapport=(sqrt(nombreRayPixAA)-1)/sqrt(nombreRayPixAA);
+    
+    Vec3f up = normalize( Vec3f(0,1,0)-dot(normalize(camTarget - eye),Vec3f(0,1,0))*normalize(camTarget - eye) );
+    
+    Vec3f currentCamPos=camEyePolar;
+    float currentFov = fovAngle;
+    
+    while(currentCamPos==camEyePolar && currentFov==fovAngle){
+        
+        
+        std::thread th00(rayThrow512,eye,pCentre,up,rapport,fovx,fovy);
+        std::thread th01(rayThrow512,eye,pCentre,up,rapport,fovx,fovy);
+        std::thread th10(rayThrow512,eye,pCentre,up,rapport,fovx,fovy);
+        std::thread th11(rayThrow512,eye,pCentre,up,rapport,fovx,fovy);
+        
+        th00.join();
+        th01.join();
+        th10.join();
+        th11.join();
+        
+        
+        // Calculer l'image normalisée par rapport au nombre de rayon
+        unsigned int index = 3*screenHeight*screenWidth;
+        float maxX=-INFINITY;
+        for (int i = 0; i < index; i++){
+            if (rayImageNumber[index]>0){
+                if ((rayImageNotNormal[index]/rayImageNumber[index])>maxX) {
+                    maxX=(rayImageNotNormal[index]/rayImageNumber[index]);
+                }
+            }
+            
+        }
+        // Calculer l'image normalisée
+        for (int i = 0; i < screenHeight; i++){
+            for ( int  j = 0; j < screenHeight; j++) {
+                unsigned int index = 3*(j+i*screenWidth);
+                rayImage[index] = rayImage[index+1] = rayImage[index+2] = 0;
+                
+                
+                rayImage[index]   = 255*(rayImageNotNormal[index]/rayImageNumber[index])/1;
+                rayImage[index+1] = 255*(rayImageNotNormal[index+1]/rayImageNumber[index+1])/1;
+                rayImage[index+2] = 255*(rayImageNotNormal[index+2]/rayImageNumber[index+2])/1;
+                
+                /*
+                 rayImage[index]   = 50*(rayImageNumber[index]   );
+                 rayImage[index+1] = 50*(rayImageNumber[index+1] );
+                 rayImage[index+2] = 50*(rayImageNumber[index+2] );
+                 */
+                
+            }
+        }
+        std::cout<< "Fini" << std::endl;
+        // Afficher l'image
+        displayRayImage();
+        glutMouseFunc (mouse);
+    }
+    
+};
+
 void display () {
-    if (rayDisplayMode)
+    if (interactifMode)
+        rayTraceInteractif();
+    else if (rayDisplayMode)
         displayRayImage ();
     else
         rasterize ();
@@ -401,9 +595,21 @@ void keyboard (unsigned char keyPressed, int x, int y) {
             rayDisplayMode = !rayDisplayMode;
             glutPostRedisplay ();
             break;
+        case 'i':
+            interactifMode = ! interactifMode;
+            glutPostRedisplay ();
+            break;
         case 'r':
             rayTrace ();
             glutPostRedisplay ();
+            break;
+        case '+':
+            fovAngle-=5;
+            rasterize();
+            break;
+        case '-':
+            fovAngle+=5;
+            rasterize();
             break;
         case 's':
             saveRayImage ("raytraced_image.ppm");
@@ -417,27 +623,36 @@ void keyboard (unsigned char keyPressed, int x, int y) {
             break;
     }
 }
-
-void mouse (int button, int state, int x, int y) {
-    if (button == GLUT_LEFT_BUTTON) {
-        if (state == GLUT_DOWN) {
-            mouseLeftButtonClicked = true;
-            clickedX = x;
-            clickedY = y;
-            baseCamPhi = camEyePolar[1];
-            baseCamTheta = camEyePolar[2];
-        } else {
-            mouseLeftButtonClicked = false;
-        }
-    }
-}
+/*
+ void mouse (int button, int state, int x, int y) {
+ if (button == GLUT_LEFT_BUTTON) {
+ if (state == GLUT_DOWN) {
+ mouseLeftButtonClicked = true;
+ clickedX = x;
+ clickedY = y;
+ baseCamPhi = camEyePolar[1];
+ baseCamTheta = camEyePolar[2];
+ } else {
+ mouseLeftButtonClicked = false;
+ }
+ }
+ }*/
 
 void motion (int x, int y) {
     if (mouseLeftButtonClicked == true) {
         camEyePolar[1] =  baseCamPhi  + (float (clickedY-y)/screenHeight) * M_PI;
         camEyePolar[2] = baseCamTheta + (float (x-clickedX)/screenWidth) * M_PI;
+        int l = 3*screenHeight*screenWidth;
+        memset (rayImageNumber, 0, l);
+        memset (rayImageNotNormal, 0, l);
         glutPostRedisplay (); // calls the display function
     }
+}
+
+void control(){
+    glutKeyboardFunc (keyboard); // Callback function executed when the keyboard is used
+    glutMouseFunc (mouse); // Callback function executed when a mouse button is clicked
+    glutMotionFunc (motion); // Callback function executed when the mouse move
 }
 
 // This function is executed in an infinite loop.
@@ -445,6 +660,7 @@ void idle () {
 }
 
 int main (int argc, char ** argv) {
+    
     glutInit (&argc, argv); // Initialize a glut app
     glutInitDisplayMode (GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE); // Setup a RGBA framebuffer to display, with a depth buffer (z-buffer), in double buffer mode (fill a buffer then update the screen)
     glutInitWindowSize (DEFAULT_SCREENWIDTH, DEFAULT_SCREENHEIGHT); // Set the window app size on screen
@@ -459,7 +675,7 @@ int main (int argc, char ** argv) {
     glutMouseFunc (mouse); // Callback function executed when a mouse button is clicked
     glutMotionFunc (motion); // Callback function executed when the mouse move
     glutIdleFunc (idle); // Callback function executed continuously when no other event happens (good for background procesing or animation for instance).
-    printUsage (); // By default, display the usage help of the program   
+    printUsage (); // By default, display the usage help of the program
     glutMainLoop ();
     return 0;
 }
