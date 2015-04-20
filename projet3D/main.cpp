@@ -63,6 +63,7 @@ static kdTree tree;
 static unsigned char * rayImage = NULL;
 static float * t_buffer = NULL;
 static unsigned char * blurImage;
+static unsigned char *DixImage;
 
 void printUsage () {
     std::cerr << std::endl // send a line break to the standard error output
@@ -253,22 +254,15 @@ void displayRayImage () {
     glEnable (GL_DEPTH_TEST);
 }
 
-void displayBlurImage () {
-    glDisable (GL_DEPTH_TEST);
-    glDrawPixels (screenWidth, screenHeight, GL_RGB, GL_UNSIGNED_BYTE, static_cast<void*>(blurImage));
-    glutSwapBuffers ();
-    glEnable (GL_DEPTH_TEST);
-}
-
 // MAIN FUNCTION TO CHANGE !
 void rayTrace () {
     
     tree=kdTree(shapes,TriangleListFromShapes(shapes));
     /*glMatrixMode (GL_PROJECTION); // Set the projection matrix as current. All upcoming matrix manipulations will affect it.
-    glLoadIdentity ();
-    gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane); // Set the current projection matrix with the camera intrinsics
-    glMatrixMode (GL_MODELVIEW); // Set the modelview matrix as current. All upcoming matrix manipulations will affect it.
-    glLoadIdentity ();*/
+     glLoadIdentity ();
+     gluPerspective (fovAngle, aspectRatio, nearPlane, farPlane); // Set the current projection matrix with the camera intrinsics
+     glMatrixMode (GL_MODELVIEW); // Set the modelview matrix as current. All upcoming matrix manipulations will affect it.
+     glLoadIdentity ();*/
     Vec3f eye = polarToCartesian (camEyePolar);
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
@@ -324,7 +318,7 @@ void rayTrace () {
                 //std::cout << "y : " << y << "   dx : " << dy << std::endl;
                 
                 
-            
+                
                 
                 Vec3f posPix = pCentre + (x+dx*rapport)*normalize(cross(up, normalize(camTarget - eye))) + (y+dy*rapport)*up;
                 Vec3f direction = normalize(posPix - eye);
@@ -346,7 +340,7 @@ void rayTrace () {
                 //std::cout << t << std::endl;
                 
                 
-                }
+            }
             //radiance/=nombreRayPix;
             
             if (tmin!=INFINITY ) {
@@ -360,7 +354,7 @@ void rayTrace () {
                 rayImage2[index] = radiance[0];
                 rayImage2[index+1] = radiance[1];
                 rayImage2[index+2] = radiance[2];
-            
+                
             }
             
         }
@@ -385,45 +379,76 @@ void rayTrace () {
     delete rayImage2;
 }
 
-void compute_kernel(const int& W, float kernel[][W]){
-    float sigma = 1;
-    float mean = W/2;
-    float sum = 0.0; // For accumulating the kernel values
-    for (int x = 0; x < W; ++x){
-        for (int y = 0; y < W; ++y) {
-            kernel[x][y] = exp( -0.5 * (pow((x-mean)/sigma, 2.0) + pow((y-mean)/sigma,2.0)) )
-            / (2 * M_PI * sigma * sigma);
-            // Accumulate the kernel values
-            sum += kernel[x][y];
-        }
-    }
-    // Normalize the kernel
-    for (int x = 0; x < W; ++x){
-        for (int y = 0; y < W; ++y){
-            kernel[x][y] /= sum;
-        }
-    }
+void displayBlurImage () {
+    glDisable (GL_DEPTH_TEST);
+    glDrawPixels (screenWidth, screenHeight, GL_RGB, GL_UNSIGNED_BYTE, static_cast<void*>(blurImage));
+    glutSwapBuffers ();
+    glEnable (GL_DEPTH_TEST);
 }
 
 void blur(){
-
-    
+    int Agrand = 1;
+    int l = Agrand*Agrand*3*screenWidth*screenHeight;
+    unsigned char *blurImageDix = new unsigned char[l];
+    if (blurImage!=nullptr) {
+        delete blurImage;
+    }
     blurImage = new unsigned char[3*screenWidth*screenHeight];
-    float ouverture = 20;
-    float focale = 20;
-    float planMiseAuPoint = 1000;
+    float ouverture = 5;
+    float focale = 500;
+    float planMiseAuPoint = 917;
+    if (DixImage!=nullptr) {
+        delete DixImage;
+    }
+    DixImage = new unsigned char(3*screenWidth*Agrand*screenHeight*Agrand);
+    float *DixDist = new float(screenWidth*Agrand*screenHeight*Agrand);
+    float poids0=0, poids1=0, poids2=0, poids3=0;
     
-    for (int i = 7; i < screenHeight-7; i++){
-        for ( int  j = 7; j < screenWidth-7; j++) {
-            unsigned int index = 3*(j+i*screenWidth);
-            float radius = abs( ouverture*( focale*(planMiseAuPoint - t_buffer[i*screenHeight+j]) )/(t_buffer[i*screenHeight+j]*( planMiseAuPoint-focale)) );
-           
-            int r = (int) round(radius)%2==0 ? round(radius)+1 : round(radius);
-            int W = r<5 ? 5 : r;
+    for (float i=0; i<screenWidth*Agrand; i++) {
+        for (float j=0; j<screenHeight*Agrand; j++) {
+            unsigned int index = 3*(j+(i*screenWidth*Agrand));
+            unsigned int index2 = j+(i*screenWidth*Agrand);
+            float is = (float)floor(i/Agrand);
+            float js = (float)floor(j/Agrand);
+            //cout<<"is : "<<is<<"  js : "<<js<<endl;
+            if ((int)(i)%Agrand!=0 && (int)(j)%Agrand!=0) {
+                poids0 = 1.f/sqrt( pow((i/Agrand)-is,2) + pow(((j/Agrand)-js),2) );
+                poids1 = 1.f/sqrt( pow((i/Agrand)-is-1.f,2) + pow((j/Agrand)-js,2) );
+                poids2 = 1.f/sqrt( pow((i/Agrand)-is,2) + pow((j/Agrand)-js-1.f,2) );
+                poids3 = 1.f/sqrt( pow((i/Agrand)-is-1.f,2) + pow((j/Agrand)-js-1.f,2) );
+                for (int n=0; n<3; n++) {
+                    DixImage[index+n] = rayImage[(int)(3*(js+is*screenWidth)+n)]*poids0 + rayImage[(int)(3*(js+(is+1)*screenWidth)+n)]*poids1 + rayImage[(int)(3*(js+1+is*screenWidth)+n)]*poids2 + rayImage[(int)(3*(js+1+(is+1)*screenWidth)+n)]*poids3 ;
+                    DixImage[index+n] /= ( poids0 + poids1 + poids2 + poids3 );
+                }
+                DixDist[index2] = t_buffer[(int)(js+is*screenWidth)]*poids0 + t_buffer[(int)(js+(is+1)*screenWidth)]*poids1 + t_buffer[(int)(js+1+is*screenWidth)]*poids2 + t_buffer[(int)(js+1+(is+1)*screenWidth)]*poids3 ;
+                DixDist[index2] /= ( poids0 + poids1 + poids2 + poids3 );
+            }else{
+                cout<<"index : "<< index <<endl;
+                DixImage[index] = rayImage[index];
+                //DixImage[index+1] = rayImage[index+1];
+                //DixImage[index+2] = rayImage[index+2];
+                //DixDist[index2]   = t_buffer[(int)(js+is*screenWidth)];
+                //DixImage[index] = rayImage[(int)(3*(js+is*screenWidth))];
+                //DixImage[index+1] = rayImage[(int)(3*(js+is*screenWidth)+1)];
+                //DixImage[index+2] = rayImage[(int)(3*(js+is*screenWidth)+2)];
+                //DixDist[index2]   = t_buffer[(int)(js+is*screenWidth)];
+            }
+            
+            
+        }
+    }
+    /*
+    for (int i = 22; i < 10*screenHeight-22; i++){
+        for ( int  j = 22; j < 10*screenWidth-22; j++) {
+            unsigned int index = 3*(j+i*screenWidth*10);
+            float radius = abs( ouverture*( focale*(planMiseAuPoint - DixDist[10*i*screenHeight+j]) )/(DixDist[10*i*screenHeight+j]*( planMiseAuPoint-focale)) );
+            int r = 0;
+            
+            int W = r<10 ? 2*r+1 : 21;
             
             
             float kernel[W][W];
-            float sigma = 2;
+            float sigma = 1;
             float mean = W/2;
             float sum = 0.0; // For accumulating the kernel values
             for (int x = 0; x < W; ++x){
@@ -440,18 +465,37 @@ void blur(){
                     kernel[x][y] /= sum;
                 }
             }
-
             
-            for (int x = 0; x < W; ++x){
-                for (int y = 0; y < W; ++y){
-                    blurImage[index]   += kernel[x][y]*rayImage[3*(j-x+(i-y)*screenWidth)];
-                    blurImage[index+1] += kernel[x][y]*rayImage[3*(j-x+(i-y)*screenWidth)+1];
-                    blurImage[index+2] += kernel[x][y]*rayImage[3*(j-x+(i-y)*screenWidth)+2];
+            
+            for (int x = -r; x < r; ++x){
+                for (int y = -r; y < r; ++y){
+                    blurImageDix[index]   += kernel[x][y]*DixImage[3*(j-x+(i-y)*screenWidth*10)];
+                    blurImageDix[index+1] += kernel[x][y]*DixImage[3*(j-x+(i-y)*screenWidth*10)+1];
+                    blurImageDix[index+2] += kernel[x][y]*DixImage[3*(j-x+(i-y)*screenWidth*10)+2];
+                    if (blurImageDix[index]>1) {
+                        cout<<"coucou"<<endl;
+                    }
                 }
             }
         }
-     }
-
+    }*/
+    /*
+    for (int i=0; i<screenWidth; i++) {
+        for (int j=0; j<screenHeight; j++) {
+            unsigned int index = 3*(j+i*screenWidth);
+            blurImage[index]   = blurImageDix[3*((j*10)+(i*10)*screenWidth)];
+            blurImage[index+1] = blurImageDix[3*((j*10)+(i*10)*screenWidth)+1];
+            blurImage[index+2] = blurImageDix[3*((j*10)+(i*10)*screenWidth)+2];
+            if (blurImage[index]>1) {
+                cout<<"coucou"<<endl;
+            }
+        }
+    }*/
+    
+    //free memory
+    delete blurImageDix;
+    delete DixDist;
+    
 }
 
 
@@ -460,7 +504,7 @@ void display () {
         if (blurDisplayMode) {
             displayBlurImage ();
         }else
-        displayRayImage ();
+            displayRayImage ();
     }
     else
         rasterize ();
@@ -551,7 +595,7 @@ int main (int argc, char ** argv) {
     glutMouseFunc (mouse); // Callback function executed when a mouse button is clicked
     glutMotionFunc (motion); // Callback function executed when the mouse move
     glutIdleFunc (idle); // Callback function executed continuously when no other event happens (good for background procesing or animation for instance).
-    printUsage (); // By default, display the usage help of the program   
+    printUsage (); // By default, display the usage help of the program
     glutMainLoop ();
     return 0;
 }

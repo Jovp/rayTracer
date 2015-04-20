@@ -362,6 +362,10 @@ Vec3f Ray::evaluateResponsePath(const std::vector<tinyobj::shape_t> & shapes, co
     Vec3f radiance=Vec3f(0,0,0);
     Vec3f p=Vec3f(0,0,0);
     Vec3f n=Vec3f(0,0,0);
+    /*
+    if (shapes[t.v[3]].name=="short_block") {
+        std::cout<<"coucou"<<std::endl;
+    }*/
     
     if (intersection==Vec3f(0,0,0)) {
         radiance= Vec3f(0,0,0);
