@@ -37,6 +37,16 @@ class BBox{
             return 2;
     }
     
+    float maxDist() const {
+        if (xL>yL && xL>zL) {
+            return xL;
+        }
+        else if (yL>zL)
+            return yL;
+        else
+            return zL;
+    }
+    
     float xL,yL,zL;
     Vec3f coin;
 };

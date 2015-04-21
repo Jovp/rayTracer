@@ -7,11 +7,11 @@
 //
 
 #include "Ray.h"
-const unsigned int NUMBER_RAY=512;
-const unsigned int NUMBER_SAMPLE_LIGHT=16;
-const float LIGHT_RADIUS=0.25;
+const unsigned int NUMBER_RAY=8;
+const unsigned int NUMBER_SAMPLE_LIGHT=8;
+const float LIGHT_RADIUS=2.5;
 const float LIGHT_POWER=1;
-const Vec3f LIGHT_N=Vec3f(0,-1,0);
+const Vec3f LIGHT_N=Vec3f(-1,-1,-1);
 const Vec3f U_LIGHT= normalize(cross(LIGHT_N,Vec3f(0.5,0.2,0.3)));
 const Vec3f V_LIGHT= cross(LIGHT_N,U_LIGHT);
 
@@ -280,11 +280,11 @@ void Ray::raySceneIntersectionKdTreeShadowOptimized(const kdTree& tree, const st
 float Brdf_Lambert(const float& Kd) {
     return (Kd/M_PI);
 }
-float Brdf_GGX(const Vec3f & p, const Vec3f & n,const Vec3f& light,const Vec3f& cam_pos) {
+float Brdf_GGX(const Vec3f & p, const Vec3f & n,const Vec3f& light,const Vec3f& cam_pos, const float& Ns) {
     // Paramètres :
     
-    const float alpha=0.2;
-    const float F0=0.03; //Plastique (diélectrique) : 0.3 à 0.5 Aluminium (conducteur) : [0.91, 0.92, 0.92], « reflet coloré », variance significative selon la longueur d’onde
+    const float alpha=1.01-log10f(Ns+1)/3;
+    const float F0=0.5; //Plastique (diélectrique) : 0.3 à 0.5 Aluminium (conducteur) : [0.91, 0.92, 0.92], « reflet coloré », variance significative selon la longueur d’onde
     
     // A FAIRE  f_s = D.F.G
     Vec3f Wo=normalize(cam_pos - p);
@@ -317,8 +317,8 @@ float Brdf_GGX(const Vec3f & p, const Vec3f & n,const Vec3f& light,const Vec3f& 
     }
 }
 
-float attenuation(const Vec3f& v){
-    float ac=1,al=2e-3,aq=1e-5;
+float attenuation(const Vec3f& v,const float& sceneSize){
+    float ac=1,al=0.0/(sceneSize),aq=0.0/(sceneSize*sceneSize);
     float d=v.length();
     return 1/(ac+al*d+aq*d*d);
 }
@@ -386,18 +386,21 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
             Vec3f randomPoint=generateRandCircle();
             Vec3f lightPosDxy=lightPos+LIGHT_RADIUS*randomPoint[0]*U_LIGHT+LIGHT_RADIUS*randomPoint[1]*V_LIGHT;
             
-            if (!isInShadow(tree, shapes,materials, p, lightPosDxy) && dot(n,lightPosDxy-p)>0.0 && dot(LIGHT_N,normalize(lightPos-p))<0.1){
+            if (!isInShadow(tree, shapes,materials, p, lightPosDxy) && dot(n,lightPosDxy-p)>0.0 && dot(LIGHT_N,normalize(lightPos-p))<0.05){
                 
                 //Calcul de l'index pour materials
                 int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
-                
+                float Ns=materials[index].shininess;
+                if (Ns==0) {
+                    Ns=40;
+                }
                 //tinyobj::shape_t shape = (shapes[t.v[3]]);
-                float LWi = attenuation(lightPosDxy-p);
+                float LWi = attenuation(lightPosDxy-p,tree.boite.maxDist());
                 
-                float GGX = Brdf_GGX(p, n, lightPosDxy,  origin);
+                float GGX = Brdf_GGX(p, n, lightPosDxy,  origin,Ns);
                 //std::cout << "attenuation : "<< LWi << std::endl;
                 
-                float projection=dot((lightPosDxy-p),normalize(n));
+                float projection=dot(normalize(lightPosDxy-p),normalize(n));
                 Vec3f diffu = Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
                 Vec3f spéculaire = Vec3f(GGX*(float)materials[index].specular[0],GGX*(float)materials[index].specular[1],GGX*(float)materials[index].specular[2]);
                 Vec3f f = diffu+spéculaire ;
@@ -411,7 +414,7 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
         // On remet a l'échelle 
         radiance/=NUMBER_SAMPLE_LIGHT;
         
-        float angleSolide=2*M_PI-(M_PI*dot((lightPos-p),normalize(n))*pow(LIGHT_RADIUS,2)/pow((lightPos-p).length(),2))<0 ? 0 : 2*M_PI-(M_PI*dot((lightPos-p),normalize(n))*pow(LIGHT_RADIUS,2)/pow((lightPos-p).length(),2));
+        float angleSolide=2*M_PI-(M_PI*dot(normalize(lightPos-p),normalize(n))*pow(LIGHT_RADIUS,2)/pow((lightPos-p).length(),2))<0 ? 0 : 2*M_PI-(M_PI*dot(normalize(lightPos-p),normalize(n))*pow(LIGHT_RADIUS,2)/pow((lightPos-p).length(),2));
         
         // On tire les rayons a partir du point courant !
         
@@ -444,10 +447,13 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
                     Vec3f colorFromRay=path.evaluateResponsePath(shapes, tree, materials, coordBar, triIntersect, lightPos, profondeur-1,profondeurMax);
                     int indexFromRay = shapes[t.v[3]].mesh.material_ids[t.v[4]];
                     Vec3f diffuFromRay=Vec3f(Brdf_Lambert(materials[indexFromRay].diffuse[0]),Brdf_Lambert(materials[indexFromRay].diffuse[1]),Brdf_Lambert(materials[indexFromRay].diffuse[2]));
-                    
-                    float GGXFromRay=Brdf_GGX(p, n, posPointHitByRay,  origin);
+                    float Ns=materials[indexFromRay].shininess;
+                    if (Ns==0) {
+                        Ns=40;
+                    }
+                    float GGXFromRay=Brdf_GGX(p, n, posPointHitByRay,  origin,Ns);
                     Vec3f specularFromRay=Vec3f(GGXFromRay*(float)materials[indexFromRay].specular[0],GGXFromRay*(float)materials[indexFromRay].specular[1],GGXFromRay*(float)materials[indexFromRay].specular[2]);
-                    radianceAmbiante+=angleSolide*attenuation(posPointHitByRay-p)*(colorFromRay)*(diffuFromRay+specularFromRay);
+                    radianceAmbiante+=angleSolide*attenuation(posPointHitByRay-p,tree.boite.maxDist())*(colorFromRay)*(diffuFromRay+specularFromRay);
                     
                     
                 }
@@ -528,10 +534,13 @@ Vec3f Ray::evaluateResponsePath(const std::vector<tinyobj::shape_t> & shapes, co
                 
                 
                 //tinyobj::shape_t shape = (shapes[t.v[3]]);
-                float LWi = attenuation(lightPos-p);
+                float LWi = attenuation(lightPos-p,tree.boite.maxDist());
+                float Ns=materials[index].shininess;
+                if (Ns==0) {
+                    Ns=40;
+                }
                 
-                
-                float GGX = Brdf_GGX(p, n, lightPos,  origin);
+                float GGX = Brdf_GGX(p, n, lightPos,  origin, Ns);
                 //std::cout << "attenuation : "<< LWi << std::endl;
                 
                 Vec3f diffu = Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
@@ -576,9 +585,13 @@ Vec3f Ray::evaluateResponsePath(const std::vector<tinyobj::shape_t> & shapes, co
                     posPointHitByRay[2] += coordBar[i]*shapes[triIntersect.v[3]].mesh.positions[triIntersect.v[i]+2];
                     
                 }
-                float GGXFromRay=Brdf_GGX(p, n, posPointHitByRay,  origin);
+                float Ns=materials[indexFromRay].shininess;
+                if (Ns==0) {
+                    Ns=40;
+                }
+                float GGXFromRay=Brdf_GGX(p, n, posPointHitByRay,  origin, Ns);
                 Vec3f specularFromRay=Vec3f(GGXFromRay*(float)materials[indexFromRay].specular[0],GGXFromRay*(float)materials[indexFromRay].specular[1],GGXFromRay*(float)materials[indexFromRay].specular[2]);
-                radiance+=attenuation(posPointHitByRay-p)*(colorFromRay)*(diffuFromRay+specularFromRay);
+                radiance+=attenuation(posPointHitByRay-p,tree.boite.maxDist())*(colorFromRay)*(diffuFromRay+specularFromRay);
                 
             }
             
@@ -637,7 +650,9 @@ Vec3f Ray::mirrorEffect(const std::vector<tinyobj::shape_t> & shapes, const kdTr
         n[2] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+2];
     }
     
-    
+    // Couleur du matériaux.
+    int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
+    Vec3f reflectivity=Vec3f(materials[index].transmittance[0],materials[index].transmittance[1],materials[index].transmittance[2]);
     
     // générer le rayon symétrique
     Ray reflection=Ray(p,direction-2*dot(direction,n)*n);
@@ -650,9 +665,9 @@ Vec3f Ray::mirrorEffect(const std::vector<tinyobj::shape_t> & shapes, const kdTr
     reflection.raySceneIntersectionKdTree(tree, shapes, triIntersect, coordBar, t2, false);
     
     if(!isPath){
-        return reflection.evaluateResponse(shapes, tree, materials, coordBar, triIntersect, lightPos, profondeur,profondeurMax);
+        return reflectivity*reflection.evaluateResponse(shapes, tree, materials, coordBar, triIntersect, lightPos, profondeur,profondeurMax);
     }
-    else return reflection.evaluateResponsePath(shapes, tree, materials, coordBar, triIntersect, lightPos, profondeur,profondeurMax);
+    else return reflectivity*reflection.evaluateResponsePath(shapes, tree, materials, coordBar, triIntersect, lightPos, profondeur-1,profondeurMax);
     
 }
 
@@ -674,6 +689,7 @@ Vec3f Ray::glassEffect(const std::vector<tinyobj::shape_t> & shapes, const kdTre
         n[1] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+1];
         n[2] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+2];
     }
+    
     
     
     
@@ -779,14 +795,22 @@ Vec3f Ray::glassEffect(const std::vector<tinyobj::shape_t> & shapes, const kdTre
         
     }
     
+    // Couleur du matériaux.
+    int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
+    Vec3f reflectivity=Vec3f(materials[index].transmittance[0],materials[index].transmittance[1],materials[index].transmittance[2]);
+    
     if(withSpecular){
         int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
-        float GGX=Brdf_GGX(p, n, lightPos,  origin);
+        float Ns=materials[index].shininess;
+        if (Ns==0) {
+            Ns=40;
+        }
+        float GGX=Brdf_GGX(p, n, lightPos,  origin,Ns);
         Vec3f specular=Vec3f(GGX*(float)materials[index].specular[0],GGX*(float)materials[index].specular[1],GGX*(float)materials[index].specular[2]);
-        return radiance+specular;
+        return reflectivity*radiance+specular;
     }
     else
-        return radiance;
+        return reflectivity*radiance;
 }
 
 
