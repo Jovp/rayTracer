@@ -187,8 +187,9 @@ void initLighting () {
     glLightfv (GL_LIGHT0, GL_SPECULAR, color);
     glEnable (GL_LIGHT0);
     //lightPos=Vec3f(278,546,279.5); // Cornell cube
-    lightPos=Vec3f(0,1.57,0); // Cornel sphère
+    //lightPos=Vec3f(0,1.57,0); // Cornel sphère
     //lightPos=Vec3f(0,8,0); // mitsuba
+    lightPos=Vec3f(0,2,0); // dragon
 }
 
 void init (const string & filename) {
@@ -583,7 +584,7 @@ void rayTraceInteractif(){
     
     rayTraceInIteract(currentCamPos,currentFov,eye,pCentre,up,rapport,fovx,fovy);
     if(rayDisplayMode){
-        std::cout << "test" << std::endl;
+        //std::cout << "test" << std::endl;
     displayRayImage();
     }
     
@@ -613,9 +614,8 @@ void keyboard (unsigned char keyPressed, int x, int y) {
             glutPostRedisplay ();
             break;
         case 'i':
-            rayDisplayMode = !rayDisplayMode;
+            rayDisplayMode = true;
             interactifMode = ! interactifMode;
-            isOutOfDateMouse=true;
             glutPostRedisplay ();
             break;
         case 'r':

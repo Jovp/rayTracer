@@ -331,7 +331,7 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
     Vec3f radianceAmbiante=Vec3f(0,0,0);
     Vec3f p=Vec3f(0,0,0);
     Vec3f n=Vec3f(0,0,0);
-    Vec3f Kd=Vec3f(0,0,0);
+    Vec3f KdPos=Vec3f(0,0,0);
     
     
     //Calcul de l'index pour materials
@@ -373,9 +373,9 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
             
             if (!materials[index].diffuse_texname.empty()) {
                 
-                Kd[0] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]];
-                Kd[1] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+1];
-                Kd[2] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+2];
+                KdPos[0] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]];
+                KdPos[1] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+1];
+                KdPos[2] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+2];
                 
             }
             

@@ -42,8 +42,7 @@ BBox computeBoundingBox(const std::vector<tinyobj::shape_t>& shapes,const std::v
     float ydiff=ymax-ymin;
     float zdiff=zmax-zmin;
     
-    if (xdiff<100 || ydiff<100 || zdiff<100 )
-        std::cout << "max : 100" << std::endl;
+    
     /*std::cout << "x min : " << xmin << std::endl;
     std::cout << "x max : " << xmax << std::endl;
     std::cout << "y min : " << ymin << std::endl;
