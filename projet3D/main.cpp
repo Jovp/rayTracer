@@ -75,6 +75,11 @@ static unsigned char * rayImage = NULL;
 static float * rayImageNotNormal = NULL;
 static int * rayImageNumber = NULL;
 
+//Defocus
+static bool defocus = false;
+static float focale = 1;
+static float ouverture = 0.0f; // Valeur typiques 0.01 à 0.1
+
 void printUsage () {
     std::cerr << std::endl // send a line break to the standard error output
     << appTitle << std::endl
@@ -186,10 +191,10 @@ void initLighting () {
     glLightfv (GL_LIGHT0, GL_DIFFUSE, color);
     glLightfv (GL_LIGHT0, GL_SPECULAR, color);
     glEnable (GL_LIGHT0);
-    //lightPos=Vec3f(278,546,279.5); // Cornell cube
+    lightPos=Vec3f(278,546,279.5); // Cornell cube
     //lightPos=Vec3f(0,1.57,0); // Cornel sphère
     //lightPos=Vec3f(0,8,0); // mitsuba
-    lightPos=Vec3f(0,2,0); // dragon
+    //lightPos=Vec3f(0,2,0); // dragon
 }
 
 void init (const string & filename) {
@@ -442,7 +447,7 @@ void rayTrace () {
     std::cout << "MAx : " << max << std::endl;
 }
 
-void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const float& rapport, const float& fovx, const float& fovy){
+void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const float& rapport, const float& fovx, const float& fovy, float& focale){
     
     
     for (int throwNumb=0; throwNumb<512; throwNumb++) {
@@ -461,7 +466,7 @@ void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const
         
         float x = -(float((2*xR-float(screenWidth)))*tan(fovx))/screenWidth;
         
-        Vec3f posPix = pCentre + x*normalize(cross(up, normalize(camTarget - eye))) + y*up;
+        Vec3f posPix = pCentre + x*focale*normalize(cross(up, normalize(camTarget - eye))) + y*focale*up;
         Vec3f direction = normalize(posPix - eye);
         
         float tmin=INFINITY;
@@ -498,15 +503,15 @@ void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const
 }
 
 
-void rayTraceInIteract(const Vec3f& currentCamPos,const float& currentFov,const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const float& rapport, const float& fovx, const float& fovy){
+void rayTraceInIteract(const Vec3f& currentCamPos,const float& currentFov,const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const float& rapport, const float& fovx, const float& fovy, float& focale){
     
     
     
     
-    std::thread th00(rayThrow512,eye,pCentre,up,rapport,fovx,fovy);
-    std::thread th01(rayThrow512,eye,pCentre,up,rapport,fovx,fovy);
-    std::thread th10(rayThrow512,eye,pCentre,up,rapport,fovx,fovy);
-    std::thread th11(rayThrow512,eye,pCentre,up,rapport,fovx,fovy);
+    std::thread th00(rayThrow512,eye,pCentre,up,rapport,fovx,fovy,focale);
+    std::thread th01(rayThrow512,eye,pCentre,up,rapport,fovx,fovy,focale);
+    std::thread th10(rayThrow512,eye,pCentre,up,rapport,fovx,fovy,focale);
+    std::thread th11(rayThrow512,eye,pCentre,up,rapport,fovx,fovy,focale);
     
     th00.join();
     th01.join();
@@ -571,18 +576,31 @@ void rayTraceInteractif(){
     swap (eye[1], eye[2]); // swap Y and Z to keep the Y vertical
     eye += camTarget;
     
-    Vec3f pCentre = eye + normalize(camTarget - eye);
+    focale = dist(camTarget, eye);
+    
+    Vec3f pCentre = eye + focale*normalize(camTarget - eye);
     
     float fovx=(fovAngle/1.855)*(2*M_PI/360);
     float fovy=fovx*float(screenHeight)/float(screenWidth);
     float rapport=(sqrt(nombreRayPixAA)-1)/sqrt(nombreRayPixAA);
+    ouverture=sceneRadius/10;
     
     Vec3f up = normalize( Vec3f(0,1,0)-dot(normalize(camTarget - eye),Vec3f(0,1,0))*normalize(camTarget - eye) );
-    
     Vec3f currentCamPos=camEyePolar;
     float currentFov = fovAngle;
     
-    rayTraceInIteract(currentCamPos,currentFov,eye,pCentre,up,rapport,fovx,fovy);
+    if (defocus) {
+        Vec3f right = cross(up, normalize(camTarget-eye));
+        Vec3f randC = generateRandCircle();
+        eye += ouverture*randC[0]*right + ouverture*randC[1]*up;
+        currentCamPos[0] = sqrt(pow(eye[0], 2)+pow(eye[1], 2)+pow(eye[2], 2)) ;
+        currentCamPos[1] =acos(eye[2]/currentCamPos[0]);
+        currentCamPos[2] =atan(eye[1]/eye[0]);
+    }
+    
+    std::cout << eye[0] << std::endl;
+    
+    rayTraceInIteract(currentCamPos,currentFov,eye,pCentre,up,rapport,fovx,fovy,focale);
     if(rayDisplayMode){
         //std::cout << "test" << std::endl;
     displayRayImage();
@@ -629,6 +647,15 @@ void keyboard (unsigned char keyPressed, int x, int y) {
         case '-':
             fovAngle+=5;
             rasterize();
+            break;
+        case 'd':
+            defocus = !defocus;
+            break;
+        case 'p':
+            focale += 50;
+            break;
+        case 'm':
+            focale -= 50;
             break;
         case 's':
             saveRayImage ("raytraced_image.ppm");

@@ -9,7 +9,7 @@
 #include "Ray.h"
 const unsigned int NUMBER_RAY=8;
 const unsigned int NUMBER_SAMPLE_LIGHT=8;
-const float LIGHT_RADIUS=0.25;
+const float LIGHT_RADIUS=50;
 const float LIGHT_POWER=1;
 const Vec3f LIGHT_N=Vec3f(0,-1,0);
 const Vec3f U_LIGHT= normalize(cross(LIGHT_N,Vec3f(0.5,0.2,0.3)));

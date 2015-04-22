@@ -15,7 +15,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "69"
             endingLineNumber = "69"
-            landmarkName = "Ray::raySceneIntersection(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, Triangle &amp; t, float&amp; d, Vec3f&amp; intersection)"
+            landmarkName = "Ray::rayTriangleIntersectionInverted (const Vec3f &amp; p0,const Vec3f &amp; p1,const Vec3f &amp; p2, Vec3f &amp; b, float &amp; d)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -26,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projet3D/main.cpp"
-            timestampString = "450811896.832132"
+            timestampString = "451211248.153604"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "255"
-            endingLineNumber = "255"
-            landmarkName = "rayTrace ()"
+            startingLineNumber = "266"
+            endingLineNumber = "266"
+            landmarkName = "rasterize ()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,12 +42,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projet3D/main.cpp"
-            timestampString = "450811896.832132"
+            timestampString = "451211248.153604"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "258"
-            endingLineNumber = "258"
-            landmarkName = "rayTrace ()"
+            startingLineNumber = "269"
+            endingLineNumber = "269"
+            landmarkName = "rasterize ()"
             landmarkType = "7">
             <Locations>
                <Location
@@ -90,12 +90,60 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "projet3D/main.cpp"
-            timestampString = "450885061.074128"
+            timestampString = "451211248.153604"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "177"
-            endingLineNumber = "177"
-            landmarkName = "init (const string &amp; filename)"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
+            landmarkName = "initCamera ()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projet3D/main.cpp"
+            timestampString = "451215952.451635"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "442"
+            endingLineNumber = "442"
+            landmarkName = "rayTrace ()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projet3D/Ray.cpp"
+            timestampString = "451065510.807504"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "367"
+            endingLineNumber = "367"
+            landmarkName = "Ray::evaluateResponse(const std::vector&lt;tinyobj::shape_t&gt; &amp; shapes, const kdTree&amp; tree, const std::vector&lt;tinyobj::material_t&gt; &amp; materials, const Vec3f &amp; intersection, const Triangle &amp; t, const Vec3f&amp; lightPos, const unsigned int&amp; profondeur,const unsigned int&amp; profondeurMax)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "projet3D/main.cpp"
+            timestampString = "451211430.529861"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "389"
+            endingLineNumber = "389"
+            landmarkName = "rayTrace ()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
