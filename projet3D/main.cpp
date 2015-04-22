@@ -290,7 +290,7 @@ void rayTrace () {
     float max[3] = {-INFINITY,-INFINITY,-INFINITY};
     float min[3] = {INFINITY,INFINITY,INFINITY};
     
-    unsigned int nombreRayPixAA=2;
+    unsigned int nombreRayPixAA=4;
     float rapport=(sqrt(nombreRayPixAA)-1)/sqrt(nombreRayPixAA);
     unsigned int nbRebond=2;
     
@@ -387,27 +387,28 @@ void displayBlurImage () {
 }
 
 void blur(){
-    int Agrand = 1;
+    int Agrand = 3;
     int l = Agrand*Agrand*3*screenWidth*screenHeight;
     unsigned char *blurImageDix = new unsigned char[l];
     if (blurImage!=nullptr) {
         delete blurImage;
     }
     blurImage = new unsigned char[3*screenWidth*screenHeight];
-    float ouverture = 5;
+    float ouverture = 20;
     float focale = 500;
     float planMiseAuPoint = 917;
     if (DixImage!=nullptr) {
         delete DixImage;
     }
-    DixImage = new unsigned char(3*screenWidth*Agrand*screenHeight*Agrand);
-    float *DixDist = new float(screenWidth*Agrand*screenHeight*Agrand);
+    DixImage = new unsigned char[3*screenWidth*Agrand*screenHeight*Agrand];
+    float *DixDist = new float[screenWidth*Agrand*screenHeight*Agrand];
     float poids0=0, poids1=0, poids2=0, poids3=0;
     
     for (float i=0; i<screenWidth*Agrand; i++) {
         for (float j=0; j<screenHeight*Agrand; j++) {
             unsigned int index = 3*(j+(i*screenWidth*Agrand));
             unsigned int index2 = j+(i*screenWidth*Agrand);
+
             float is = (float)floor(i/Agrand);
             float js = (float)floor(j/Agrand);
             //cout<<"is : "<<is<<"  js : "<<js<<endl;
@@ -423,33 +424,34 @@ void blur(){
                 DixDist[index2] = t_buffer[(int)(js+is*screenWidth)]*poids0 + t_buffer[(int)(js+(is+1)*screenWidth)]*poids1 + t_buffer[(int)(js+1+is*screenWidth)]*poids2 + t_buffer[(int)(js+1+(is+1)*screenWidth)]*poids3 ;
                 DixDist[index2] /= ( poids0 + poids1 + poids2 + poids3 );
             }else{
-                cout<<"index : "<< index <<endl;
-                DixImage[index] = rayImage[index];
-                //DixImage[index+1] = rayImage[index+1];
-                //DixImage[index+2] = rayImage[index+2];
-                //DixDist[index2]   = t_buffer[(int)(js+is*screenWidth)];
-                //DixImage[index] = rayImage[(int)(3*(js+is*screenWidth))];
-                //DixImage[index+1] = rayImage[(int)(3*(js+is*screenWidth)+1)];
-                //DixImage[index+2] = rayImage[(int)(3*(js+is*screenWidth)+2)];
-                //DixDist[index2]   = t_buffer[(int)(js+is*screenWidth)];
+                //cout<<"index : "<< index <<endl;
+                
+                DixImage[index]   = rayImage[(int)(3*(js+is*screenWidth))];
+                DixImage[index+1] = rayImage[(int)(3*(js+is*screenWidth)+1)];
+                DixImage[index+2] = rayImage[(int)(3*(js+is*screenWidth)+2)];
+                DixDist[index2]   = t_buffer[(int)(js+is*screenWidth)];
             }
             
             
         }
     }
-    /*
-    for (int i = 22; i < 10*screenHeight-22; i++){
-        for ( int  j = 22; j < 10*screenWidth-22; j++) {
-            unsigned int index = 3*(j+i*screenWidth*10);
-            float radius = abs( ouverture*( focale*(planMiseAuPoint - DixDist[10*i*screenHeight+j]) )/(DixDist[10*i*screenHeight+j]*( planMiseAuPoint-focale)) );
-            int r = 0;
+    
+    for (int i = 22; i < Agrand*screenWidth-22; i++){
+        for ( int  j = 22; j < Agrand*screenHeight-22; j++) {
+            unsigned int index = 3*(j+i*screenWidth*Agrand);
+            float radius = 0.f;
+            if (DixDist[Agrand*i*screenHeight+j]!=INFINITY) {
+                radius = abs( ouverture*( focale*(planMiseAuPoint - DixDist[Agrand*i*screenWidth+j]) )/(DixDist[Agrand*i*screenWidth+j]*( planMiseAuPoint-focale)) );
+            } else radius = 10;
             
-            int W = r<10 ? 2*r+1 : 21;
+            int r = radius<1 ? 1 : floor(radius);
+            
+            int W = r<10 ? 2*r-1 : 21;
             
             
             float kernel[W][W];
             float sigma = 1;
-            float mean = W/2;
+            float mean = 0;
             float sum = 0.0; // For accumulating the kernel values
             for (int x = 0; x < W; ++x){
                 for (int y = 0; y < W; ++y) {
@@ -467,30 +469,36 @@ void blur(){
             }
             
             
-            for (int x = -r; x < r; ++x){
-                for (int y = -r; y < r; ++y){
-                    blurImageDix[index]   += kernel[x][y]*DixImage[3*(j-x+(i-y)*screenWidth*10)];
-                    blurImageDix[index+1] += kernel[x][y]*DixImage[3*(j-x+(i-y)*screenWidth*10)+1];
-                    blurImageDix[index+2] += kernel[x][y]*DixImage[3*(j-x+(i-y)*screenWidth*10)+2];
+            for (int x = 0; x < r+1; ++x){
+                for (int y = 0; y < r+1; ++y){
+                    blurImageDix[index]   += kernel[x][y]*DixImage[3*((j-x)-y+i*screenWidth*Agrand)];
+                    blurImageDix[index+1] += kernel[x][y]*DixImage[3*((j-x)-y+i*screenWidth*Agrand)+1];
+                    blurImageDix[index+2] += kernel[x][y]*DixImage[3*((j-x)-y+i*screenWidth*Agrand)+2];
+                    blurImageDix[index]   += kernel[x][y]*DixImage[3*((j+x)+y+i*screenWidth*Agrand)];
+                    blurImageDix[index+1] += kernel[x][y]*DixImage[3*((j+x)+y+i*screenWidth*Agrand)+1];
+                    blurImageDix[index+2] += kernel[x][y]*DixImage[3*((j+x)+y+i*screenWidth*Agrand)+2];
+
                     if (blurImageDix[index]>1) {
-                        cout<<"coucou"<<endl;
+                        //cout<<"coucou1"<<endl;
                     }
                 }
             }
         }
-    }*/
-    /*
+    }
+    
     for (int i=0; i<screenWidth; i++) {
         for (int j=0; j<screenHeight; j++) {
             unsigned int index = 3*(j+i*screenWidth);
-            blurImage[index]   = blurImageDix[3*((j*10)+(i*10)*screenWidth)];
-            blurImage[index+1] = blurImageDix[3*((j*10)+(i*10)*screenWidth)+1];
-            blurImage[index+2] = blurImageDix[3*((j*10)+(i*10)*screenWidth)+2];
+            blurImage[index]   = blurImageDix[ 3*((j*Agrand)+((i*Agrand)*screenWidth)) ];
+            blurImage[index+1] = blurImageDix[3*((j*Agrand)+((i*Agrand)*screenWidth))+1];
+            blurImage[index+2] = blurImageDix[3*((j*Agrand)+((i*Agrand)*screenWidth))+2];
             if (blurImage[index]>1) {
-                cout<<"coucou"<<endl;
+                //cout<<"coucou2"<<endl;
             }
         }
-    }*/
+    }
+   
+    
     
     //free memory
     delete blurImageDix;
