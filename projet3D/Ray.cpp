@@ -9,9 +9,9 @@
 #include "Ray.h"
 const unsigned int NUMBER_RAY=8;
 const unsigned int NUMBER_SAMPLE_LIGHT=8;
-const float LIGHT_RADIUS=2.5;
+const float LIGHT_RADIUS=0.25;
 const float LIGHT_POWER=1;
-const Vec3f LIGHT_N=Vec3f(-1,-1,-1);
+const Vec3f LIGHT_N=Vec3f(0,-1,0);
 const Vec3f U_LIGHT= normalize(cross(LIGHT_N,Vec3f(0.5,0.2,0.3)));
 const Vec3f V_LIGHT= cross(LIGHT_N,U_LIGHT);
 
@@ -283,8 +283,8 @@ float Brdf_Lambert(const float& Kd) {
 float Brdf_GGX(const Vec3f & p, const Vec3f & n,const Vec3f& light,const Vec3f& cam_pos, const float& Ns) {
     // Paramètres :
     
-    const float alpha=1.01-log10f(Ns+1)/3;
-    const float F0=0.5; //Plastique (diélectrique) : 0.3 à 0.5 Aluminium (conducteur) : [0.91, 0.92, 0.92], « reflet coloré », variance significative selon la longueur d’onde
+    const float alpha=1.00-log10f(Ns+1)/2;
+    const float F0=0.9; //Plastique (diélectrique) : 0.3 à 0.5 Aluminium (conducteur) : [0.91, 0.92, 0.92], « reflet coloré », variance significative selon la longueur d’onde
     
     // A FAIRE  f_s = D.F.G
     Vec3f Wo=normalize(cam_pos - p);
@@ -318,7 +318,7 @@ float Brdf_GGX(const Vec3f & p, const Vec3f & n,const Vec3f& light,const Vec3f& 
 }
 
 float attenuation(const Vec3f& v,const float& sceneSize){
-    float ac=1,al=0.0/(sceneSize),aq=0.0/(sceneSize*sceneSize);
+    float ac=1,al=0.2/(sceneSize),aq=0.2/(sceneSize*sceneSize);
     float d=v.length();
     return 1/(ac+al*d+aq*d*d);
 }
@@ -331,6 +331,7 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
     Vec3f radianceAmbiante=Vec3f(0,0,0);
     Vec3f p=Vec3f(0,0,0);
     Vec3f n=Vec3f(0,0,0);
+    Vec3f Kd=Vec3f(0,0,0);
     
     
     //Calcul de l'index pour materials
@@ -370,6 +371,14 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
             n[1] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+1];
             n[2] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+2];
             
+            if (!materials[index].diffuse_texname.empty()) {
+                
+                Kd[0] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]];
+                Kd[1] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+1];
+                Kd[2] += intersection[i]*shapes[t.v[3]].mesh.normals[t.v[i]+2];
+                
+            }
+            
         }
         
         float distCircle=rayCircleIntersection(lightPos, LIGHT_N, LIGHT_RADIUS);
@@ -399,6 +408,7 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
                 
                 float GGX = Brdf_GGX(p, n, lightPosDxy,  origin,Ns);
                 //std::cout << "attenuation : "<< LWi << std::endl;
+                
                 
                 float projection=dot(normalize(lightPosDxy-p),normalize(n));
                 Vec3f diffu = Vec3f(Brdf_Lambert(materials[index].diffuse[0]),Brdf_Lambert(materials[index].diffuse[1]),Brdf_Lambert(materials[index].diffuse[2]));
