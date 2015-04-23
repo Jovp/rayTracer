@@ -450,7 +450,7 @@ void rayTrace () {
 void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const float& rapport, const float& fovx, const float& fovy, float& focale){
     
     
-    for (int throwNumb=0; throwNumb<512; throwNumb++) {
+    for (int throwNumb=0; throwNumb<128; throwNumb++) {
         //chaque ray :
         float xR=screenWidth*float(rand())/RAND_MAX;
         float yR=screenHeight*float(rand())/RAND_MAX;
@@ -702,11 +702,11 @@ void motion (int x, int y) {
 void display () {
     
     if (rayDisplayMode){
-        if (interactifMode){
-            rayTraceInteractif();
+        if (!interactifMode){
+            //rayTraceInteractif();
+            displayRayImage ();
         }
-    else
-        displayRayImage ();
+        
     }
     else
         rasterize ();
