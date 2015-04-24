@@ -9,7 +9,7 @@
 #include "Ray.h"
 const unsigned int NUMBER_RAY=8;
 const unsigned int NUMBER_SAMPLE_LIGHT=8;
-const float LIGHT_RADIUS=50;
+const float LIGHT_RADIUS=0.25;
 const float LIGHT_POWER=1;
 const Vec3f LIGHT_N=Vec3f(0,-1,0);
 const Vec3f U_LIGHT= normalize(cross(LIGHT_N,Vec3f(0.5,0.2,0.3)));
@@ -338,7 +338,8 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
     int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
     
     if (intersection==Vec3f(0,0,0)) {
-        radiance= Vec3f(0,0,0);
+        std::cout << "out" << std::endl;
+        radiance= Vec3f(0.4,0.7,1);
     }
     
     
@@ -423,6 +424,7 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
         }
         // On remet a l'échelle 
         radiance/=NUMBER_SAMPLE_LIGHT;
+        radiance=radiance*Vec3f(LIGHT_POWER,LIGHT_POWER,LIGHT_POWER); // on multiplie par la couleur du soleil.
         
         float angleSolide=2*M_PI-(M_PI*dot(normalize(lightPos-p),normalize(n))*pow(LIGHT_RADIUS,2)/pow((lightPos-p).length(),2))<0 ? 0 : 2*M_PI-(M_PI*dot(normalize(lightPos-p),normalize(n))*pow(LIGHT_RADIUS,2)/pow((lightPos-p).length(),2));
         
@@ -467,6 +469,17 @@ Vec3f Ray::evaluateResponse(const std::vector<tinyobj::shape_t> & shapes, const 
                     
                     
                 }
+                // Pour la couleur du fond.
+                /*
+                else {
+                    
+                    // ici sur
+                    Vec3f colorFromRay=Vec3f(0.2,0.35,0.5);
+                    int indexFromRay = shapes[t.v[3]].mesh.material_ids[t.v[4]];
+                    Vec3f diffuFromRay=Vec3f(Brdf_Lambert(materials[indexFromRay].diffuse[0]),Brdf_Lambert(materials[indexFromRay].diffuse[1]),Brdf_Lambert(materials[indexFromRay].diffuse[2]));
+                    radianceAmbiante+=angleSolide*(colorFromRay)*(diffuFromRay);
+                }
+                 */
             }
             radianceAmbiante/=NUMBER_RAY;
             
@@ -490,7 +503,7 @@ Vec3f Ray::evaluateResponsePath(const std::vector<tinyobj::shape_t> & shapes, co
     int index = shapes[t.v[3]].mesh.material_ids[t.v[4]];
     
     if (intersection==Vec3f(0,0,0)) {
-        radiance= Vec3f(0,0,0);
+        radiance= Vec3f(0.4,0.7,1);
     }
     
     // effet miroir
@@ -559,7 +572,7 @@ Vec3f Ray::evaluateResponsePath(const std::vector<tinyobj::shape_t> & shapes, co
                 
                 //std::cout << projection << std::endl;
                 
-                radiance= LWi*f;
+                radiance= Vec3f(LIGHT_POWER,LIGHT_POWER,0.6*LIGHT_POWER)*LWi*f; // on multiplie par la couleur du soleil
                 
                 
             }
@@ -604,6 +617,17 @@ Vec3f Ray::evaluateResponsePath(const std::vector<tinyobj::shape_t> & shapes, co
                 radiance+=attenuation(posPointHitByRay-p,tree.boite.maxDist())*(colorFromRay)*(diffuFromRay+specularFromRay);
                 
             }
+            // Pour la couleur du fond
+            /*
+            else {
+                
+                // ici sur
+                Vec3f colorFromRay=Vec3f(0.1,0.175,0.25);
+                int indexFromRay = shapes[t.v[3]].mesh.material_ids[t.v[4]];
+                Vec3f diffuFromRay=Vec3f(Brdf_Lambert(materials[indexFromRay].diffuse[0]),Brdf_Lambert(materials[indexFromRay].diffuse[1]),Brdf_Lambert(materials[indexFromRay].diffuse[2]));
+                radiance+=(colorFromRay)*(diffuFromRay);
+            }
+             */
             
         }
         

@@ -25,8 +25,8 @@
 using namespace std;
 
 // App parameters
-static const unsigned int DEFAULT_SCREENWIDTH = 768;
-static const unsigned int DEFAULT_SCREENHEIGHT = 768;
+static const unsigned int DEFAULT_SCREENWIDTH = 512;
+static const unsigned int DEFAULT_SCREENHEIGHT = 512;
 static const char * DEFAULT_SCENE_FILENAME = "scenes/All_cornell_box/CornellBox-Sphere.obj";
 static string appTitle ("MCRT - Monte Carlo Ray Tracer");
 static GLint window;
@@ -74,6 +74,7 @@ bool isOutOfDateMouse=true;
 static unsigned char * rayImage = NULL;
 static float * rayImageNotNormal = NULL;
 static int * rayImageNumber = NULL;
+float meanNumberRay=0;
 
 //Defocus
 static bool defocus = false;
@@ -191,10 +192,11 @@ void initLighting () {
     glLightfv (GL_LIGHT0, GL_DIFFUSE, color);
     glLightfv (GL_LIGHT0, GL_SPECULAR, color);
     glEnable (GL_LIGHT0);
-    lightPos=Vec3f(278,546,279.5); // Cornell cube
-    //lightPos=Vec3f(0,1.57,0); // Cornel sphère
+    //lightPos=Vec3f(278,546,279.5); // Cornell cube
+    lightPos=Vec3f(0,1.57,0); // Cornel sphère
     //lightPos=Vec3f(0,8,0); // mitsuba
     //lightPos=Vec3f(0,2,0); // dragon
+    //lightPos=Vec3f(0,35,0); // Sponza
 }
 
 void init (const string & filename) {
@@ -447,17 +449,27 @@ void rayTrace () {
     std::cout << "MAx : " << max << std::endl;
 }
 
-void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const float& rapport, const float& fovx, const float& fovy, float& focale){
+void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const float& rapport, const float& fovx, const float& fovy, float focale){
     
     
-    for (int throwNumb=0; throwNumb<128; throwNumb++) {
+    for (int throwNumb=0; throwNumb<512; throwNumb++) {
         //chaque ray :
-        float xR=screenWidth*float(rand())/RAND_MAX;
-        float yR=screenHeight*float(rand())/RAND_MAX;
+        unsigned int index;
+        float xR;
+        float yR;
+        int xPix;
+        int yPix;
         
-        int xPix= floor(xR);
-        int yPix= floor(yR);
-        unsigned int index = 3*(xPix+yPix*screenWidth);
+        // On génère un rayon qui soit ok
+        do{
+        xR=screenWidth*float(rand())/RAND_MAX;
+        yR=screenHeight*float(rand())/RAND_MAX;
+        
+        xPix= floor(xR);
+        yPix= floor(yR);
+        index = 3*(xPix+yPix*screenWidth);
+        }while((float)rayImageNumber[index]-0.99>=meanNumberRay);
+               
         rayImageNumber[index]++;
         rayImageNumber[index+1]++;
         rayImageNumber[index+2]++;
@@ -498,6 +510,17 @@ void rayThrow512(const Vec3f& eye, const Vec3f& pCentre, const Vec3f& up , const
             rayImageNotNormal[index+2]+=radiance[2];
             
         }
+        // Pour la couleur du fond
+        /*
+        else {
+        radiance=Vec3f(0.2,0.35,0.5);
+        
+        rayImageNotNormal[index]+=radiance[0];
+        rayImageNotNormal[index+1]+=radiance[1];
+        rayImageNotNormal[index+2]+=radiance[2];
+        }
+         */
+        
     }
     
 }
@@ -521,6 +544,7 @@ void rayTraceInIteract(const Vec3f& currentCamPos,const float& currentFov,const 
     
     // Calculer l'image normalisée par rapport au nombre de rayon
     unsigned int index = 3*screenHeight*screenWidth;
+    meanNumberRay=0;
     float maxX=-INFINITY;
     for (int i = 0; i < index; i++){
         if (rayImageNumber[i]>0){
@@ -528,8 +552,11 @@ void rayTraceInIteract(const Vec3f& currentCamPos,const float& currentFov,const 
                 maxX=(rayImageNotNormal[i]/(rayImageNumber[i]));
             }
         }
+        meanNumberRay+=rayImageNumber[i];
         
     }
+    meanNumberRay/=screenHeight*screenWidth;
+    //std::cout << meanNumberRay << std::endl;
     // Calculer l'image normalisée
     
     unsigned int numberIndex = 3*screenHeight*screenWidth;
@@ -598,7 +625,7 @@ void rayTraceInteractif(){
         currentCamPos[2] =atan(eye[1]/eye[0]);
     }
     
-    std::cout << eye[0] << std::endl;
+    //std::cout << eye[0] << std::endl;
     
     rayTraceInIteract(currentCamPos,currentFov,eye,pCentre,up,rapport,fovx,fovy,focale);
     if(rayDisplayMode){
@@ -652,10 +679,10 @@ void keyboard (unsigned char keyPressed, int x, int y) {
             defocus = !defocus;
             break;
         case 'p':
-            focale += 50;
+            focale *= 1.1;
             break;
         case 'm':
-            focale -= 50;
+            focale /= 1.1;
             break;
         case 's':
             saveRayImage ("raytraced_image.ppm");

@@ -172,6 +172,7 @@ Vec3f findMedianSampleLong(const std::vector<tinyobj::shape_t>& shapes,const std
     
 }
 
+
 void Partition(const std::vector<tinyobj::shape_t>& shapes,const std::vector<Triangle>& TriangleList,const Vec3f& median,int Axis,std::vector<Triangle>& TriangleListU,std::vector<Triangle>& TriangleListI){
     
     for (unsigned int i = 0; i < TriangleList.size (); i++){
